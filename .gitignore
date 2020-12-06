@@ -1,6 +1,6 @@
-*/venv/*
+**/venv/**
 *.wav
-*/.idea/*
+**/.idea/**
 node_modules/**/*
 .expo/*
 .expo-shared/*
@@ -22,7 +22,7 @@ build/*
 /node_modules
 npm-debug.log
 /*.env
-
+*.ogg
 
 
 # Created by https://www.gitignore.io/api/react,gradle,android,reactnative
