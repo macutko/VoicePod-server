@@ -1,21 +1,22 @@
-import {error, log} from "../../../utils/logging";
+import {error, log, positive_action} from "../../../utils/logging";
 import * as chatService from "../../../services/chat.service";
-import {getMessages, newMessage, sendingAudioMessage} from "../../../services/message.service";
+import {getLanguageOptions, getMessages, newMessage, sendingAudioMessage} from "../../../services/message.service";
 
 export class ChatHandler {
-    constructor(socket) {
+    constructor(socket, io) {
         this.socket = socket;
-
+        this.io = io
         this.handler = {
             getChats: this.getChats,
             newMessage: this.newMessage,
             getMessages: this.getMessages,
-            sendingAudioMessage: this.sendingAudioMessage
+            sendingAudioMessage: this.sendingAudioMessage,
+            getLanguageOptions: this.getLanguageOptions
         };
     }
 
     getChats = (data, acknowledgeFn) => {
-        log(`User ${this.socket.decoded_token.sub} wants a list of his chats`)
+        positive_action('LIST OF CHATS', `${this.socket.decoded_token.sub}`)
         let response;
 
         chatService.getByUserId(this.socket.decoded_token.sub)
@@ -38,10 +39,10 @@ export class ChatHandler {
     }
 
     newMessage = (data, acknowledgeFn) => {
-        newMessage(data, this.socket.decoded_token.sub).then((m) =>
+        newMessage(data, this.socket.decoded_token.sub).then((m) => {
             //@todo : let ppl know about this!
-            log(m)
-        ).catch(e => error(e))
+            this.io.to(data.chatId).emit('newMessage', m)
+        }).catch(e => error(e))
     }
 
     getMessages = (data, acknowledgeFn) => {
@@ -53,13 +54,21 @@ export class ChatHandler {
         ).catch(e => error(e))
     }
 
-    sendingAudioMessage = (data, acknowledgeFn) =>{
-        sendingAudioMessage(data,this.socket.decoded_token.sub).then(res => {
-            if (res) {
-                acknowledgeFn(null,res)
-            }
+    sendingAudioMessage = (data, acknowledgeFn) => {
+        sendingAudioMessage(data, this.socket.decoded_token.sub).then(res => {
+            log('should be emmiting newMessage')
+            this.io.to(data.chatId).emit('newMessage', res)
         }).catch(e => error(e))
     }
 
+    getLanguageOptions = (data, acknowledgeFn) => {
+        getLanguageOptions(data).then(res => {
+            if (res) {
+                acknowledgeFn(null, res)
+            } else {
+                acknowledgeFn('Error', null)
+            }
+        }).catch(e => acknowledgeFn(e, null))
+    }
 }
 

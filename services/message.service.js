@@ -1,13 +1,15 @@
 import {Chat, Message, User} from '../models/db'
 import * as fs from "fs";
 import {PythonShell} from "python-shell";
+import {error, positive_action} from "../utils/logging";
+
 
 export async function newMessage(data, userID) {
     // check for the user and chat ID
     if (!data.chatId) throw 'Need a chatId!'
     if (!userID) throw 'need a user ID'
 
-    let chat = await Chat.findById(data.chatId).populate()
+    let chat = await Chat.findById(data.chatId)
     if (!chat) throw 'No chat by this ID'
 
     let user = await User.findById(userID)
@@ -23,7 +25,10 @@ export async function newMessage(data, userID) {
 
     await message.save()
 
-    return message.toJSON()
+    return Message.findById(message._id).populate({
+        path: 'from',
+        select: "firstName lastName email username"
+    })
 }
 
 export async function getMessages(data, userID) {
@@ -43,26 +48,75 @@ export async function getMessages(data, userID) {
 
 }
 
+
 export async function sendingAudioMessage(data, userID) {
     if (!data.chatId) throw 'Need chat ID'
     if (!userID) throw 'need a user ID'
+    if (!data.language) throw 'Need language'
+    if (!data.sound) throw 'Need a sound'
 
     // TODO: save the message and what not but skip for now
     let fileName = `${data.chatId}_${userID}.wav`
     let buff = Buffer.from(data.sound, 'base64');
     await fs.writeFileSync(fileName, buff)
-    console.log(buff)
+
     let options = {
         mode: 'text',
         //TODO: amend for production
-        //TODO: gitignore venv
-        pythonPath: './services/py_speech/venv/Scripts/python.exe',
-        args: [fileName, 'en_En']
+        pythonPath: 'services\\py_speech\\venv\\Scripts\\python.exe',
+        args: [fileName, data.language]
     };
-    PythonShell.run('./services/py_speech/speech_to_text.py', options, function (err, results) {
-        console.log(err)
-        console.log(results)
+
+    return await new Promise((resolve, reject) => {
+
+        PythonShell.run('services\\py_speech\\speech_to_text.py', options, (err, res) => {
+            let message;
+            if (err) {
+                error(err)
+                reject(err)
+            }
+
+            if (res) {
+                message = new Message({
+                    from: userID,
+                    chatID: data.chatId,
+                    message: res.join('.'),
+                    sound: true,
+                    sound_bits: data.sound
+                })
+
+                message.save()
+                positive_action('Sound Message!', res)
+                resolve(Message.findById(message._id).populate({
+                    path: 'from',
+                    select: "firstName lastName email username"
+                }))
+            }
+        });
     })
 
-    return "Text of speech"
+
+}
+
+export async function getLanguageOptions(data) {
+    return ['en-GB', 'en-US', 'sk-SK']
+    // return await new Promise((resolve, reject) => {
+    //     let options = {
+    //         mode: 'text',
+    //         //TODO: amend for production
+    // TODO: make this function be useful
+    //         pythonPath: 'services\\py_speech\\venv\\Scripts\\python.exe',
+    //     };
+    //
+    //     PythonShell.run('services\\py_speech\\get_language_options.py', options, (err, res) => {
+    //         if (err) {
+    //             error(err)
+    //             reject(err)
+    //         }
+    //         if (res) {
+    //             positive_action('Language options!', res)
+    //             resolve(res)
+    //         }
+    //     });
+    // })
 }

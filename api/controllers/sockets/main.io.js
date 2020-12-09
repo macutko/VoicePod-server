@@ -1,21 +1,26 @@
-import {log} from "../../../utils/logging";
+import {negative_action, positive_action} from "../../../utils/logging";
 
 export class MainHandler {
-    constructor(socket) {
+    constructor(socket, io) {
         this.socket = socket;
+        this.io = io
 
         this.handler = {
             terminate: this.terminate,
-            joinRoom: this.joinRoom,
+            joinChats: this.joinChats,
         };
     }
 
     terminate = (data) => {
-        log(`User ${this.socket.decoded_token.sub} has terminated his connection.`)
+        negative_action(`DISCONNECTED:`, `${this.socket.decoded_token.sub}`)
     }
-    joinRoom = (data) => {
-        log(`User ${this.socket.decoded_token.sub} joined the room ${data.roomName}`)
-        this.socket.join(data.roomName)
+    joinChats = (data, ackFn) => {
+        for (const item of data) {
+            this.socket.join(item.chatId)
+        }
+        positive_action('JOINED CHATS!', `${this.socket.decoded_token.sub}`)
+        ackFn(null, `Should be joined to all chats ${data}`)
+
     }
 
 }

@@ -8,7 +8,7 @@ import jwt from './api/middlewares/jwt'
 import {createServer} from "http"
 import {config} from './config.js'
 import {authorize} from "socketio-jwt";
-import {log} from "./utils/logging";
+import {action, log} from "./utils/logging";
 import {MainHandler} from "./api/controllers/sockets/main.io";
 import {errorHandler} from "./api/middlewares/errorHandler";
 import {ChatHandler} from "./api/controllers/sockets/chat.io";
@@ -39,11 +39,12 @@ io.on('connection', authorize({
     pingInterval: 3000,
     pingTimeout: 2000,
 })).on('authenticated', function (socket) {
-    log(`New user connnected ${socket.decoded_token.sub}`)
+    action('CONNECTED:', `${socket.decoded_token.sub}`)
+
     // Create event handlers for this socket
     let eventHandlers = {
-        main: new MainHandler(socket),
-        chat: new ChatHandler(socket)
+        main: new MainHandler(socket, io),
+        chat: new ChatHandler(socket, io)
     };
 
     // Bind events to handlers

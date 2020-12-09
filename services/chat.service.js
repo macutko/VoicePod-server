@@ -46,8 +46,7 @@ async function create(req) {
             {'chatWithAccountUsername': currentUser.username},
             {'chatWithAccountUsername': destinationUser.username}]
     })
-    console.log(chat!==[])
-    console.log(chat)
+
     if (chat.length !== 0 ) return chat
 
     let newChat = new Chat({

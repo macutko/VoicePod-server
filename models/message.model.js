@@ -3,7 +3,9 @@ import {model, Schema} from 'mongoose'
 const schema = new Schema({
     chatID: {type: Schema.Types.ObjectId, ref: 'Chat', required: true},
     from: {type: Schema.Types.ObjectId, ref: 'User', required: true},
-    message: {type: String, required: true}
+    message: {type: String, required: true},
+    sound: {type: Boolean, required: true, default: false},
+    sound_bits: {type: String}
 }, {timestamps: true});
 
 schema.set('toJSON', {
