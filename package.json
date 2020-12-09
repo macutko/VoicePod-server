@@ -1,5 +1,5 @@
 {
-  "name": "TLDL_server",
+  "name": "tldl_server",
   "version": "1.0.0",
   "description": "Another server for another app",
   "main": "main.js",
@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "npm-run-all clean & babel ./ --out-dir build --ignore ./node_modules",
-    "start": "babel-node --trace-deprecation --presets '@babel/preset-env' ./main.js",
+    "start": "nodemon",
     "clean": "rimraf build",
     "watch:dev": "npm-run-all build && node ./build/main.js"
   },
