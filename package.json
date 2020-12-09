@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "npm-run-all clean & babel ./ --out-dir build --ignore ./node_modules",
-    "start": "babel-node --trace-deprecation --presets '@babel/preset-env' ./main.js",
+    "start": "nodemon",
     "clean": "rimraf build",
     "watch:dev": "npm-run-all build && node ./build/main.js"
   },
@@ -47,8 +47,7 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react"
+      "@babel/preset-env"
     ],
     "plugins": [
       [
