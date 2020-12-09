@@ -1,8 +1,11 @@
 {
-  "name": "server_v3",
+  "name": "TLDL_server",
   "version": "1.0.0",
   "description": "Another server for another app",
   "main": "main.js",
+  "engines": {
+    "node": "12.x"
+  },
   "scripts": {
     "dev": "nodemon",
     "build": "npm-run-all clean & babel ./ --out-dir build --ignore ./node_modules",
