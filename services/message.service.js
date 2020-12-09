@@ -77,6 +77,7 @@ export async function sendingAudioMessage(data, userID) {
             }
 
             if (res) {
+                positive_action('Sound Message!', res)
                 message = new Message({
                     from: userID,
                     chatID: data.chatId,
@@ -84,9 +85,9 @@ export async function sendingAudioMessage(data, userID) {
                     sound: true,
                     sound_bits: data.sound
                 })
-
+                console.log('problem was here')
                 message.save()
-                positive_action('Sound Message!', res)
+
                 resolve(Message.findById(message._id).populate({
                     path: 'from',
                     select: "firstName lastName email username"
