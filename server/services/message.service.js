@@ -67,8 +67,8 @@ export async function sendingAudioMessage(data, userID) {
     };
 
     return await new Promise((resolve, reject) => {
-
-        PythonShell.run('..\\server\\services\\py_speech\\speech_to_text.py', options, (err, res) => {
+        console.log(process.cwd())
+        PythonShell.run('server\\services\\py_speech\\speech_to_text.py', options, (err, res) => {
             let message;
             if (err) {
                 error(err)
