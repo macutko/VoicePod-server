@@ -71,10 +71,7 @@ export async function sendingAudioMessage(data, userID) {
         const testFolder = process.cwd();
         const fs = require('fs');
 
-        fs.readdirSync(testFolder).forEach(file => {
-            console.log(file);
-        });
-        PythonShell.run('py_speech\\speech_to_text.py', options, (err, res) => {
+        PythonShell.run('py_speech/speech_to_text.py', options, (err, res) => {
             let message;
             if (err) {
                 error(err)
