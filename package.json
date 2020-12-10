@@ -2,13 +2,13 @@
   "name": "tldl_server",
   "version": "1.0.0",
   "description": "Another server for another app",
-  "main": "main.js",
+  "main": "server/main.js",
   "engines": {
     "node": "12.x"
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "npm-run-all clean & babel ./ --out-dir build --ignore ./node_modules",
+    "build": "npm-run-all clean & babel ./server --out-dir build --ignore ./node_modules",
     "start": "nodemon",
     "clean": "rimraf build",
     "watch:dev": "npm-run-all build && node ./build/main.js"
@@ -67,12 +67,12 @@
   "nodemonConfig": {
     "exec": "npm run watch:dev",
     "watch": [
-      "./api/*",
-      "./config/*",
-      "./models/*",
-      "./services/*",
-      "./utils/*",
-      "./main.js"
+      "./server/api/*",
+      "./server/config/*",
+      "./server/models/*",
+      "./server/services/*",
+      "./server/utils/*",
+      "./server/main.js"
     ],
     "ignore": [
       "**/node_modules/**",
