@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Another server for another app",
   "main": "server/main.js",
-  "type": "module",
+
   "engines": {
     "node": "12.x"
   },
