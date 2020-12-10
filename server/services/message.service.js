@@ -67,9 +67,6 @@ export async function sendingAudioMessage(data, userID) {
     };
 
     return await new Promise((resolve, reject) => {
-        console.log(process.cwd())
-        const testFolder = process.cwd();
-        const fs = require('fs');
 
         PythonShell.run('py_speech/speech_to_text.py', options, (err, res) => {
             let message;
@@ -87,7 +84,6 @@ export async function sendingAudioMessage(data, userID) {
                     sound: true,
                     sound_bits: data.sound
                 })
-                console.log('problem was here')
                 message.save()
 
                 resolve(Message.findById(message._id).populate({
