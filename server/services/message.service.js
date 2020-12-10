@@ -63,7 +63,6 @@ export async function sendingAudioMessage(data, userID) {
     let options = {
         mode: 'text',
         //TODO: amend for production
-        pythonPath: 'services\\py_speech\\venv\\Scripts\\python.exe',
         args: [fileName, data.language]
     };
 
