@@ -1,4 +1,4 @@
-import {negative_action, positive_action} from "../../../utils/logging";
+import {negative_action, positive_action} from "../../utils/logging";
 
 export class MainHandler {
     constructor(socket, io) {

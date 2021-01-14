@@ -6,12 +6,16 @@ import bodyParser from 'body-parser'
 import jwt from './api/middlewares/jwt'
 
 import {createServer} from "http"
-import {config} from './config.js'
+
 import {authorize} from "socketio-jwt";
-import {action, log} from "./utils/logging";
-import {MainHandler} from "./api/controllers/sockets/main.io";
+import {action} from "./utils/logging";
+import {MainHandler} from "./api/sockets/main.io";
 import {errorHandler} from "./api/middlewares/errorHandler";
-import {ChatHandler} from "./api/controllers/sockets/chat.io";
+import {ChatHandler} from "./api/sockets/chat.io";
+import {MessageHandler} from "./api/sockets/message.io";
+import {Config} from "./config";
+
+let conf = new Config()
 
 const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
@@ -25,16 +29,16 @@ app.use(errorHandler);
 
 // api routes
 app.use('/user', require('./api/controllers/user.controller'));
-app.use('/chat', require('./api/controllers/chat.controller'));
+
 
 // start server
-const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 8080) : (config.PORT || 4000);
+
 const server = createServer(app);
 const io = require('socket.io')(server);
 
 
 io.on('connection', authorize({
-    secret: config.secret,
+    secret: conf.secret,
     timeout: 15000, // 15 seconds to send the authentication message
     pingInterval: 3000,
     pingTimeout: 2000,
@@ -44,7 +48,8 @@ io.on('connection', authorize({
     // Create event handlers for this socket
     let eventHandlers = {
         main: new MainHandler(socket, io),
-        chat: new ChatHandler(socket, io)
+        chat: new ChatHandler(socket, io),
+        message: new MessageHandler(socket, io),
     };
 
     // Bind events to handlers
@@ -57,4 +62,4 @@ io.on('connection', authorize({
 
 
 });
-server.listen(port, () => console.log("server running on port:" + port));
+server.listen(conf.PORT, () => console.log("server running on port:" + conf.PORT));

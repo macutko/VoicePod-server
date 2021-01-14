@@ -2,8 +2,8 @@
 
 
 module.exports = {
-    getByUserId,
-    create,
+    getChatByUserId: getByUserId,
+    createChat,
 };
 
 async function getByUserId(userID) {
@@ -12,9 +12,9 @@ async function getByUserId(userID) {
     if (chat !== []) {
         for (let item of chat) {
             let user;
-            if (item.userAccount == userID) user = item.chatWithAccountUsername
+            if (item.userAccount === userID) user = item.chatWithAccountUsername
 
-            if (item.chatWithAccount == userID) user = item.userAccountUsername
+            if (item.chatWithAccount === userID) user = item.userAccountUsername
             responseChats.push({
                 username: user,
                 chatId: item._id
@@ -26,7 +26,7 @@ async function getByUserId(userID) {
     return responseChats
 }
 
-async function create(req) {
+async function createChat(req) {
     // validate
     if (req.body.message == null) throw 'message must be something!'
     if (req.user === undefined) throw 'user must be defined'
@@ -65,8 +65,7 @@ async function create(req) {
         chatID: newChat.id,
         message: req.body.message
     })
-    newMessage = await newMessage.save()
 
-    return newChat
+    return await newMessage.save()
 }
 

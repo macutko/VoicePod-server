@@ -1,4 +1,4 @@
-import {config} from "../config";
+import {Config} from "../config";
 import mongoose from 'mongoose'
 
 const connectionOptions = {
@@ -7,7 +7,10 @@ const connectionOptions = {
     useUnifiedTopology: true,
     useFindAndModify: false
 };
-mongoose.connect(process.env.MONGODB_URI || config.connectionString, connectionOptions);
+
+let conf = new Config()
+
+mongoose.connect(conf.connectionString, connectionOptions);
 mongoose.Promise = global.Promise;
 
 module.exports = {
@@ -15,4 +18,5 @@ module.exports = {
     Error: require('./error.model'),
     Chat: require('./chat.model'),
     Message: require('./message.model'),
+    UserSettings: require('./userSettings.model')
 };

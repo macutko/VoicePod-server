@@ -1,13 +1,13 @@
 import expressJwt from 'express-jwt'
-import {config} from '../../config.js'
+import {Config} from "../../config";
 import userService from '../../services/user.service'
 
 
 module.exports = jwt;
 
 function jwt() {
-    const secret = config.secret;
-    return expressJwt({secret, isRevoked}).unless({
+    let conf = new Config();
+    return expressJwt({secret: conf.secret, isRevoked}).unless({
         path: [
             // public routes that don't require authentication
             '/user/authenticate',

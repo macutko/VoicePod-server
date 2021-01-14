@@ -7,7 +7,8 @@ router.post('/authenticate', authenticate);
 router.post('/create', create);
 router.get('/exists', getByEmailOrUsername);
 router.get('/getCurrent', getCurrent);
-// router.put('/:id', update);
+
+// TODO: create a delete!
 
 module.exports = router;
 
@@ -26,6 +27,7 @@ function create(req, res, next) {
         next(err)
     });
 }
+
 function getCurrent(req, res, next) {
     if (req.user === undefined) {
         res.status(307).json({message: "Not logged in"})
@@ -43,6 +45,7 @@ function getCurrent(req, res, next) {
 
     }
 }
+
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
         .then((user) => {
@@ -70,9 +73,3 @@ function getByEmailOrUsername(req, res, next) {
     }
 
 }
-//
-// function update(req, res, next) {
-//     userService.update(req.params.id, req.body)
-//         .then(() => res.json({}))
-//         .catch(err => next(err));
-// }

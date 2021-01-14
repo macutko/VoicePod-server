@@ -1,7 +1,8 @@
-﻿import {config} from '../config'
-import jwt from 'jsonwebtoken'
+﻿import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import {User} from '../models/db'
+import {User, UserSettings} from '../models/db'
+import {error} from "../utils/logging";
+import {Config} from "../config";
 
 
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
 async function authenticate({username, password}) {
     const user = await User.findOne({username});
     if (user && bcrypt.compareSync(password, user.hash)) {
+        let config = new Config()
         const token = jwt.sign({sub: user.id}, config.secret);
         let u = user.toJSON()
         delete u.id
@@ -65,8 +67,11 @@ async function create(userParam) {
 
     // save user
     let token;
+    let config = new Config()
     await user.save().then((newUser) => {
         token = jwt.sign({sub: newUser.id}, config.secret);
+        let userSettings = new UserSettings({user: newUser.id})
+        userSettings.save().catch(err => error(err))
     });
 
     return {
@@ -75,27 +80,4 @@ async function create(userParam) {
     };
 }
 
-//
-// async function update(id, userParam) {
-//     const user = await User.findById(id);
-//
-//     // validate
-//     if (!user) throw 'User not found';
-//     if (user.username !== userParam.username && await User.findOne({username: userParam.username})) {
-//         throw 'Username "' + userParam.username + '" is already taken';
-//     }
-//     if (user.email !== userParam.email && await User.findOne({email: userParam.email})) {
-//         throw 'Email "' + userParam.email + '" is already used by another user';
-//     }
-//
-//     // hash password if it was entered
-//     if (userParam.password) {
-//         userParam.hash = bcrypt.hashSync(userParam.password, 10);
-//     }
-//
-//     // copy userParam properties to user
-//     Object.assign(user, userParam);
-//
-//     await user.save();
-// }
-//
+

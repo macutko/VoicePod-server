@@ -1,10 +1,7 @@
 import {model, Schema} from 'mongoose'
 
 const schema = new Schema({
-    userAccount: {type: Schema.Types.ObjectId, ref: 'User', required: true},
-    chatWithAccount: {type: Schema.Types.ObjectId, ref: 'User', required: true},
-    chatWithAccountUsername: {type: String, required: true},
-    userAccountUsername: {type: String, required: true},
+    users: [{type: Schema.Types.ObjectId, ref: 'User', required: true}]
 });
 
 schema.set('toJSON', {

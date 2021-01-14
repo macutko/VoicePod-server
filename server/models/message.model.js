@@ -5,7 +5,7 @@ const schema = new Schema({
     from: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     message: {type: String, required: true},
     sound: {type: Boolean, required: true, default: false},
-    sound_bits: {type: String}
+    sound_bits: {type: String} // TODO: this should not be stored in the DB eventually..and maybe we could put a hard limit on the lenght of the voice message
 }, {timestamps: true});
 
 schema.set('toJSON', {
