@@ -9,7 +9,7 @@ import {createServer} from "http"
 
 import {authorize} from "socketio-jwt";
 import {action} from "./utils/logging";
-import {MainHandler} from "./api/sockets/main.io";
+import {MainHandler} from "./api/sockets/user.io";
 import {errorHandler} from "./api/middlewares/errorHandler";
 import {ChatHandler} from "./api/sockets/chat.io";
 import {MessageHandler} from "./api/sockets/message.io";

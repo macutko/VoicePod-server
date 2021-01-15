@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "npm-run-all clean & babel ./server --out-dir build --ignore ./node_modules",
-    "start": "npm run build && babel-node ./build/main.js",
+    "start": "npm run build && NODE_ENV=production&& SECRET=hjaksdabnasd456asdkjkdsajjjja0&& node ./build/main.js",
     "clean": "rm -rf build",
     "watch:dev": "npm-run-all build && babel-node ./build/main.js"
   },
@@ -56,6 +56,9 @@
     ]
   },
   "nodemonConfig": {
+    "env": {
+      "NODE_ENV": "development"
+    },
     "exec": "npm run watch:dev",
     "watch": [
       "./server/api/*",

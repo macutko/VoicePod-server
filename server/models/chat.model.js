@@ -1,7 +1,11 @@
 import {model, Schema} from 'mongoose'
 
 const schema = new Schema({
-    users: [{type: Schema.Types.ObjectId, ref: 'User', required: true}]
+    noob: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    expert: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    accepted: {type: Schema.Types.Boolean, default: false},
+    dateOfDecision: {type: Schema.Types.Date},
+    createdDate: {type: Date, default: Date.now},
 });
 
 schema.set('toJSON', {
