@@ -16,17 +16,26 @@ module.exports = {
 };
 
 async function search(queryString) {
-    let finds = await User.find({
-        $or: [{'username': {$regex: queryString, $options: "i"}},
-            {'firstName': {$regex: queryString, $options: "i"}},
-            {'lastName': {$regex: queryString, $options: "i"}},
-            {'description': {$regex: queryString, $options: "i"}},
-            {'searchTags': {$regex: queryString, $options: "i"}}]
-        // $and: [{'businessActivated': true}]
-    })
+    let finds;
+    finds = await User.find().and({businessActivated: true}).or([{'username': {$regex: queryString, $options: "i"}},
+        {'firstName': {$regex: queryString, $options: "i"}},
+        {'lastName': {$regex: queryString, $options: "i"}},
+        {'description': {$regex: queryString, $options: "i"}},
+        {'searchTags': {$regex: queryString, $options: "i"}}]);
+
+    console.log(finds)
+    // {
+    //     $or:
+    //     [{'username': {$regex: queryString, $options: "i"}},
+    //         {'firstName': {$regex: queryString, $options: "i"}},
+    //         {'lastName': {$regex: queryString, $options: "i"}},
+    //         {'description': {$regex: queryString, $options: "i"}},
+    //         {'searchTags': {$regex: queryString, $options: "i"}}],
+    //         $and: [{'businessActivated': true}]
+    // }
     let results = []
 
-    if (finds.length !== 1) {
+    if (finds.length !== 0) {
         for (const user in finds) {
             let u = finds[user].toJSON()
             delete u.businessActivated
@@ -55,6 +64,9 @@ async function updateUser(req) {
     }
     if (data.description) {
         newData.description = data.description
+    }
+    if (data.businessActivated != null || data.businessActivated !== undefined) {
+        newData.businessActivated = data.businessActivated
     }
     return User.findOneAndUpdate(query, newData, {new: true});
 }
