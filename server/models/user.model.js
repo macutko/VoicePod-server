@@ -13,6 +13,7 @@ const schema = new Schema({
     language: {type: Schema.Types.String, default: 'en-EN'}, // TODO: this is for the future once we enable multiple languages for transcript
     businessActivated: {type: Schema.Types.Boolean, default: false},
     description: {type: Schema.Types.String, default: "Add a BIO of yourself"},
+    price: {type: Schema.Types.Number, default: 0.5, min: [0.1]},
     searchTags: [{type: Schema.Types.String}]
 });
 

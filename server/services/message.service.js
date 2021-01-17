@@ -14,16 +14,25 @@ async function checkChatData(data, userID) {
     if (!data.chatId) throw 'Need a chatId!'
     if (!userID) throw 'need a user ID'
 
-    let chat = await Chat.findById(data.chatId)
+    let chat = await Chat.findById(data.chatId).or([{'noob': userID}, {'consultant': userID}])
     if (!chat) throw 'No chat by this ID'
 
     let user = await User.findById(userID)
     if (!user) throw 'No user by this ID'
 
-    if ((chat.userAccount.toString() !== userID) && (chat.chatWithAccount.toString() !== userID)) throw 'This user isnt part of this chat!'
-
     return [chat, user]
 }
+
+export async function getMessages(data, userID) {
+    let [chat, user] = await checkChatData(data, userID)
+
+    return Message.find({chatID: data.chatId}).populate({
+        path: 'from',
+        select: "firstName lastName email username"
+    });
+
+}
+
 
 /**
  * Function used by the new message endpoint.
@@ -99,37 +108,5 @@ export async function newMessage(data, userID) {
     })
 }
 
-export async function getMessages(data, userID) {
-    let [chat, user] = await checkChatData(data, userID)
-
-    return Message.find({chatID: data.chatId}).populate({
-        path: 'from',
-        select: "firstName lastName email username"
-    });
-
-}
 
 
-//
-// export async function getLanguageOptions(data) {
-//     return ['en-GB', 'en-US', 'sk-SK']
-//     // return await new Promise((resolve, reject) => {
-//     //     let options = {
-//     //         mode: 'text',
-//     //         //TODO: amend for production
-//     // TODO: make this function be useful
-//     //         pythonPath: 'services\\py_speech\\venv\\Scripts\\python.exe',
-//     //     };
-//     //
-//     //     PythonShell.run('services\\py_speech\\get_language_options.py', options, (err, res) => {
-//     //         if (err) {
-//     //             error(err)
-//     //             reject(err)
-//     //         }
-//     //         if (res) {
-//     //             positive_action('Language options!', res)
-//     //             resolve(res)
-//     //         }
-//     //     });
-//     // })
-// }

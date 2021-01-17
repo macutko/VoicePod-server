@@ -15,7 +15,7 @@ module.exports = {
     search
 };
 
-async function search(queryString) {
+async function search(queryString, userID) {
     let finds;
     finds = await User.find().and({businessActivated: true}).or([{'username': {$regex: queryString, $options: "i"}},
         {'firstName': {$regex: queryString, $options: "i"}},
@@ -23,24 +23,18 @@ async function search(queryString) {
         {'description': {$regex: queryString, $options: "i"}},
         {'searchTags': {$regex: queryString, $options: "i"}}]);
 
-    console.log(finds)
-    // {
-    //     $or:
-    //     [{'username': {$regex: queryString, $options: "i"}},
-    //         {'firstName': {$regex: queryString, $options: "i"}},
-    //         {'lastName': {$regex: queryString, $options: "i"}},
-    //         {'description': {$regex: queryString, $options: "i"}},
-    //         {'searchTags': {$regex: queryString, $options: "i"}}],
-    //         $and: [{'businessActivated': true}]
-    // }
     let results = []
 
     if (finds.length !== 0) {
         for (const user in finds) {
-            let u = finds[user].toJSON()
-            delete u.businessActivated
-            delete u.id
-            results.push(u)
+            let u = finds[user]
+            if (u.id === userID) continue
+            else {
+                u = u.toJSON()
+                delete u.businessActivated
+                delete u.id
+                results.push(u)
+            }
         }
     }
     return results
@@ -67,6 +61,11 @@ async function updateUser(req) {
     }
     if (data.businessActivated != null || data.businessActivated !== undefined) {
         newData.businessActivated = data.businessActivated
+    }
+    if (data.price != null || data.price !== undefined) {
+        if (data.price > 0 && !isNaN(data.price)) {
+            newData.price = data.price
+        }
     }
     return User.findOneAndUpdate(query, newData, {new: true});
 }

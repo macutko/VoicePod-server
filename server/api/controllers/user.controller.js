@@ -73,10 +73,9 @@ function getCurrent(req, res, next) {
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then((user) => {
-            // todo: refactor this cuz if undefined it throw error on .user
-            if (!(user.user.username) || !(user.token)) {
-                res.json(user);
+        .then(({user, token}) => {
+            if (user.username != null && token != null) {
+                res.json({user:user,token:token});
                 log.log(" 200 User logged in!")
             } else {
                 log.log("401 User attempted login. Bad pass or Username");

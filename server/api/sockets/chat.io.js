@@ -7,7 +7,7 @@ export class ChatHandler {
         this.io = io
         this.handler = {
             getChats: this.getChats,
-            createChat: this.createChat
+            offerProposition: this.offerProposition
         };
     }
 
@@ -16,9 +16,9 @@ export class ChatHandler {
             .then(chats => {
                 if (chats) {
                     acknowledgeFn(null, chats)
-                    positive_action('LIST OF CHATS', `${this.socket.decoded_token.sub}`)
+                    positive_action('LIST OF CHATS', `${chats.length}`)
                 } else {
-                    action(`LIST OF CHATS is empty`, `${this.socket.decoded_token.sub}`)
+                    action(`LIST OF CHATS is empty`, `${chats.length}`)
                     acknowledgeFn(null, {})
                 }
             })
@@ -28,15 +28,15 @@ export class ChatHandler {
             });
     }
 
-    createChat = (data, acknowledgeFn) => {
-        chatService.createChat(data).then(chat => {
-            if (chat) {
-                acknowledgeFn(null, chat)
+    offerProposition = (data, ackFn) => {
+        chatService.offerProposition(data, this.socket.decoded_token.sub).then(r => {
+            if (r) {
+                ackFn(null, r)
             } else {
-                acknowledgeFn(null, null)
+                ackFn(500, null)
             }
         }).catch(err => {
-            acknowledgeFn(err, null)
+            ackFn(500, null)
         })
     }
 

@@ -19,4 +19,5 @@ module.exports = {
     Chat: require('./chat.model'),
     Message: require('./message.model'),
     Review: require('./review.model'),
+    Offer: require('./offer.model'),
 };

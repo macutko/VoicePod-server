@@ -26,7 +26,7 @@ export class MainHandler {
     }
 
     search = (data, ackFn) => {
-        userService.search(data.searchQuery).then((r) => {
+        userService.search(data.searchQuery, this.socket.decoded_token.sub).then((r) => {
             if (r) ackFn(null, r)
             else ackFn(r, null)
             positive_action('SEARCH SUCCESS', `${r.length}`)
