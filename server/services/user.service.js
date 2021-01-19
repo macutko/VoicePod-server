@@ -1,7 +1,6 @@
 ﻿import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import {User, UserSettings} from '../models/db'
-import {error} from "../utils/logging";
+import {User} from '../models/db'
 import {Config} from "../config";
 
 
@@ -10,8 +9,71 @@ module.exports = {
     create,
     getByEmail,
     getByUsername,
-    authenticate
+    authenticate,
+    removeUser,
+    updateUser,
+    search
 };
+
+async function search(queryString, userID) {
+    let finds;
+    finds = await User.find().and({businessActivated: true}).or([{'username': {$regex: queryString, $options: "i"}},
+        {'firstName': {$regex: queryString, $options: "i"}},
+        {'lastName': {$regex: queryString, $options: "i"}},
+        {'description': {$regex: queryString, $options: "i"}},
+        {'searchTags': {$regex: queryString, $options: "i"}}]);
+
+    let results = []
+
+    if (finds.length !== 0) {
+        for (const user in finds) {
+            let u = finds[user]
+            if (u.id === userID) continue
+            else {
+                u = u.toJSON()
+                delete u.businessActivated
+                delete u.id
+                results.push(u)
+            }
+        }
+    }
+    return results
+
+}
+
+async function updateUser(req) {
+    let query = {'_id': req.user.sub};
+    let data = req.body
+    let newData = {}
+    if (data.profilePicture && data.pictureType) {
+        // TODO: check that this is a file that works
+        newData.profilePicture = data.profilePicture
+        newData.pictureType = data.pictureType
+    }
+    if (data.firstName) {
+        newData.firstName = data.firstName
+    }
+    if (data.lastName) {
+        newData.lastName = data.lastName
+    }
+    if (data.description) {
+        newData.description = data.description
+    }
+    if (data.businessActivated != null || data.businessActivated !== undefined) {
+        newData.businessActivated = data.businessActivated
+    }
+    if (data.price != null || data.price !== undefined) {
+        if (data.price > 0 && !isNaN(data.price)) {
+            newData.price = data.price
+        }
+    }
+    return User.findOneAndUpdate(query, newData, {new: true});
+}
+
+
+async function removeUser(userID) {
+    return User.findById(userID).remove().exec()
+}
 
 async function authenticate({username, password}) {
     const user = await User.findOne({username});
@@ -70,8 +132,6 @@ async function create(userParam) {
     let config = new Config()
     await user.save().then((newUser) => {
         token = jwt.sign({sub: newUser.id}, config.secret);
-        let userSettings = new UserSettings({user: newUser.id})
-        userSettings.save().catch(err => error(err))
     });
 
     return {

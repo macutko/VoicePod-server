@@ -1,5 +1,5 @@
 import * as messageService from "../../services/message.service";
-import {error, log} from "../../utils/logging";
+import {error} from "../../utils/logging";
 
 export class MessageHandler {
     constructor(socket, io) {
@@ -7,14 +7,16 @@ export class MessageHandler {
         this.io = io
         this.handler = {
             newMessage: this.newMessage,
-            getMessages: this.getMessages
-            // getLanguageOptions: this.getLanguageOptions
+            getMessages: this.getMessages,
         };
     }
 
-    newMessage = (data, acknowledgeFn) => {
+    newMessage = (data, ackFn) => {
         messageService.newMessage(data, this.socket.decoded_token.sub).then((m) => {
-            this.io.to(data.chatId).emit('newMessage', m)
+            if (m){
+                ackFn(null,{})
+            }
+            // this.io.to(data.chatId).emit('newMessage', m)
         }).catch(e => error(e))
     }
 
@@ -27,13 +29,5 @@ export class MessageHandler {
         ).catch(e => error(e))
     }
 
-    // getLanguageOptions = (data, acknowledgeFn) => {
-    //     messageService.getLanguageOptions(data).then(res => {
-    //         if (res) {
-    //             acknowledgeFn(null, res)
-    //         } else {
-    //             acknowledgeFn('Error', null)
-    //         }
-    //     }).catch(e => acknowledgeFn(e, null))
-    // }
+
 }

@@ -18,5 +18,6 @@ module.exports = {
     Error: require('./error.model'),
     Chat: require('./chat.model'),
     Message: require('./message.model'),
-    UserSettings: require('./userSettings.model')
+    Review: require('./review.model'),
+    Offer: require('./offer.model'),
 };

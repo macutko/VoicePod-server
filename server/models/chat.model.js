@@ -1,7 +1,10 @@
 import {model, Schema} from 'mongoose'
 
 const schema = new Schema({
-    users: [{type: Schema.Types.ObjectId, ref: 'User', required: true}]
+    noob: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    consultant: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    offer: {type: Schema.Types.ObjectId, ref: 'Offer', required: true},
+    lastMessage: {type: Schema.Types.ObjectId, ref:'Message', default: null}
 });
 
 schema.set('toJSON', {

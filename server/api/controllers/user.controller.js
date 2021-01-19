@@ -7,10 +7,36 @@ router.post('/authenticate', authenticate);
 router.post('/create', create);
 router.get('/exists', getByEmailOrUsername);
 router.get('/getCurrent', getCurrent);
-
-// TODO: create a delete!
+router.get('/deleteAccount', removeUser);
+router.post('/updateAccount', updateUser);
 
 module.exports = router;
+
+function removeUser(req, res, next) {
+    userService.removeUser(req.user.sub).then((r) => {
+        if (r) {
+            res.sendStatus(200)
+        } else {
+            res.sendStatus(500)
+        }
+    }).catch((err) => {
+        log.error(err)
+        next(err)
+    })
+}
+
+function updateUser(req, res, next) {
+    userService.updateUser(req).then((doc) => {
+        if (doc) {
+            res.sendStatus(200)
+        } else {
+            res.sendStatus(500)
+        }
+    }).catch((err) => {
+        log.error(err)
+        next(err)
+    })
+}
 
 function create(req, res, next) {
     userService.create(req.body)
@@ -19,24 +45,23 @@ function create(req, res, next) {
                 res.status(201).json(user);
                 log.log(" 201 User created successfully!")
             } else {
-                res.status(400);
+                res.sendStatus(400)
                 log.log(user)
             }
         }).catch((err) => {
-        log.log(err);
+        log.error(err)
         next(err)
     });
 }
 
 function getCurrent(req, res, next) {
-    if (req.user === undefined) {
-        res.status(307).json({message: "Not logged in"})
+    if (!req.user) {
+        res.status(401).json({message: "Not logged in"})
     } else {
         userService.getById(req.user.sub)
             .then(user => {
                 if (user) {
                     res.json({user: user}).status(200)
-
                 } else {
                     res.sendStatus(404)
                 }
@@ -48,10 +73,9 @@ function getCurrent(req, res, next) {
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then((user) => {
-            // todo: refactor this cuz if undefined it throw error on .user
-            if (!(user.user.username == null) || !(user.token == null)) {
-                res.json(user);
+        .then(({user, token}) => {
+            if (user.username != null && token != null) {
+                res.json({user:user,token:token});
                 log.log(" 200 User logged in!")
             } else {
                 log.log("401 User attempted login. Bad pass or Username");

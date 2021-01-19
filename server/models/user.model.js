@@ -1,12 +1,20 @@
-import {Schema, model} from 'mongoose'
+import {model, Schema} from 'mongoose'
 
 const schema = new Schema({
-    username: { type: String, unique: true, required: true, lowercase: true },
-    hash: { type: String, required: true },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    createdDate: { type: Date, default: Date.now },
-    email: {type: String, required:true}
+    username: {type: Schema.Types.String, unique: true, required: true, lowercase: true},
+    hash: {type: Schema.Types.String, required: true},
+    firstName: {type: Schema.Types.String, required: true},
+    lastName: {type: Schema.Types.String, required: true},
+    createdDate: {type: Schema.Types.Date, default: Date.now},
+    email: {type: Schema.Types.String, required: true},
+    confirmedEmail: {type: Schema.Types.Boolean, default: false},
+    profilePicture: {type: Schema.Types.String, default: null}, // TODO: this should not be stored in the DB eventually
+    pictureType: {type: Schema.Types.String, enum: ['jpg', 'png', 'jpeg']},
+    language: {type: Schema.Types.String, default: 'en-EN'}, // TODO: this is for the future once we enable multiple languages for transcript
+    businessActivated: {type: Schema.Types.Boolean, default: false},
+    description: {type: Schema.Types.String, default: "Add a BIO of yourself"},
+    price: {type: Schema.Types.Number, default: 0.5, min: [0.1]},
+    searchTags: [{type: Schema.Types.String}]
 });
 
 schema.set('toJSON', {
@@ -15,6 +23,9 @@ schema.set('toJSON', {
     transform: function (doc, ret) {
         delete ret._id;
         delete ret.hash;
+        delete ret.confirmedEmail;
+        delete ret.createdDate;
+        delete ret.id
     }
 });
 

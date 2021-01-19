@@ -1,71 +1,75 @@
-﻿import {Chat, Message, User} from '../models/db'
+﻿import {Chat, Offer, User} from '../models/db'
 
-
-module.exports = {
-    getChatByUserId: getByUserId,
-    createChat,
-};
-
-async function getByUserId(userID) {
-    let chat = await Chat.find({$or: [{'userAccount': userID}, {'chatWithAccount': userID}]})
-    let responseChats = []
-    if (chat !== []) {
-        for (let item of chat) {
-            let user;
-            if (item.userAccount === userID) user = item.chatWithAccountUsername
-
-            if (item.chatWithAccount === userID) user = item.userAccountUsername
-            responseChats.push({
-                username: user,
-                chatId: item._id
-            })
-        }
-
-    }
-
-    return responseChats
+export async function getChatByUserId(userID) {
+    return Chat.find().or([{'noob': userID}, {'consultant': userID}])
+        .populate({
+            path: 'noob',
+            select: "username firstName lastName profilePicture pictureType",
+            match: {_id: {$ne: userID}}
+        }).populate({
+            path: 'consultant',
+            select: "username firstName lastName profilePicture pictureType",
+            match: {_id: {$ne: userID}}
+        }).populate({
+            path: 'lastMessage',
+            select: "read"
+        }).limit(20);
 }
 
-async function createChat(req) {
-    // validate
-    if (req.body.message == null) throw 'message must be something!'
-    if (req.user === undefined) throw 'user must be defined'
-    if (req.body.username == null) throw 'user must be defined'
-
-
-    let destinationUser = await User.findOne({username: req.body.username})
-    if (destinationUser == null) {
-        throw 'no user by this name!'
-    }
-
-    let currentUser = await User.findById(req.user.sub)
-
-    let chat = await Chat.find({
-        $or: [{'userAccountUsername': currentUser.username},
-            {'userAccountUsername': destinationUser.username},
-            {'chatWithAccountUsername': currentUser.username},
-            {'chatWithAccountUsername': destinationUser.username}]
+export async function getMinutesBalance(data, userId) {
+    let m = await Chat.findById(data.chatId).or([{'noob': userId}, {'consultant': userId}]).populate({
+        path: 'offer',
+        select: 'budgetMinutes usedMinutes'
     })
 
-    if (chat.length !== 0 ) return chat
+    let balance = m.offer.budgetMinutes - m.offer.usedMinutes
+    console.log(balance)
+    return {minutes: balance}
+}
+
+export async function getOfferById(data, userID) {
+    return Offer.findById(data.offerId)
+}
+
+export async function decisionOfferById(data, userId, decision) {
+    let chat = await Chat.find({offer: data.offerId}).and({consultant: userId})
+    if (!chat) throw 'Not possible'
+    let offer = await Offer.findById(data.offerId)
+    offer.accepted = decision
+    offer.dateOfDecision = Date.now()
+    return offer.save();
+
+}
+
+
+export async function offerProposition(data, userID) {
+    if (!data.username) throw 'Need a consultant username'
+    if (!data.intro || !data.problem || !data.advice || !data.outcome || !data.budget) throw 'No voice clip or budget'
+
+    if (!userID) throw 'SECURITY ISSUE!'
+
+    let consultant = await User.findOne({username: data.username})
+
+
+    let newOffer = new Offer({
+        introSoundBits: data.intro,
+        problemSoundBits: data.problem,
+        adviceSoundBits: data.advice,
+        outcomeSoundBits: data.outcome,
+        budgetMinutes: data.budget
+    })
+
+    newOffer = await newOffer.save()
 
     let newChat = new Chat({
-        userAccount: req.user.sub,
-        chatWithAccount: destinationUser._id,
-        userAccountUsername: currentUser.username,
-        chatWithAccountUsername: destinationUser.username
-
+        offer: newOffer.id,
+        consultant: consultant.id,
+        noob: userID,
     })
 
+    let n = await newChat.save()
 
-    newChat = await newChat.save()
-
-    let newMessage = new Message({
-        from: currentUser.id,
-        chatID: newChat.id,
-        message: req.body.message
-    })
-
-    return await newMessage.save()
+    return n.toJSON()
 }
+
 
