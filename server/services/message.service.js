@@ -1,106 +1,74 @@
-import {Chat, Message, User} from '../models/db'
+import {Chat, Message, User,Offer} from '../models/db'
 import * as fs from "fs";
-import {PythonShell} from "python-shell";
-import {error, positive_action} from "../utils/logging";
+import getAudioDurationInSeconds from "get-audio-duration";
 
 /**
- * Function used to check whether the message operation can happen. Default checks relevant for more endpoints
+ * Function used to check whether the message operation can happen.
+ *
  * @param data - data passed in by the socket, much have chat id
- * @param userID - user ID decoded from token
+ * @param userId - user ID decoded from token
  * @returns {Promise<any[]>} - should return relevant chat object and user object
  */
 
-async function checkChatData(data, userID) {
+async function checkChatData(data, userId) {
     if (!data.chatId) throw 'Need a chatId!'
-    if (!userID) throw 'need a user ID'
+    if (!userId) throw 'need a user ID'
 
-    let chat = await Chat.findById(data.chatId).or([{'noob': userID}, {'consultant': userID}])
+    let chat = await Chat.findById(data.chatId).or([{'noob': userId}, {'consultant': userId}])
     if (!chat) throw 'No chat by this ID'
 
-    let user = await User.findById(userID)
+    let user = await User.findById(userId)
     if (!user) throw 'No user by this ID'
 
     return [chat, user]
 }
 
-export async function getMessages(data, userID) {
-    let [chat, user] = await checkChatData(data, userID)
+export async function getMessages(data, userId) {
+    let [chat, user] = await checkChatData(data, userId)
 
-    return Message.find({chatID: data.chatId}).populate({
+    return Message.find({chatId: chat.id}).populate({
         path: 'from',
         select: "firstName lastName email username"
-    });
+    }).limit(20);
 
 }
 
 
-/**
- * Function used by the new message endpoint.
- * @param data
- * @param userID
- * @returns {Promise<unknown>}
- */
-async function handleSoundMessage(data, userID) {
+export async function newMessage(data, userId) {
+    let [chat, user] = await checkChatData(data, userId)
 
-    let fileName = `${data.chatId}_${userID}.wav`
-    let buff = Buffer.from(data.sound, 'base64');
+    if (!data.voiceClip) throw 'Need a sound'
+
+    let fileName = `${data.chatId}_${userId}.wav`
+    let buff = Buffer.from(data.voiceClip, 'base64');
     await fs.writeFileSync(fileName, buff)
+    let duration = (await getAudioDurationInSeconds(fileName)).toFixed(0)
 
-    let options = {
-        mode: 'text',
-        args: [fileName, 'en-EN']
-    };
 
-    return new Promise((resolve, reject) => {
+    if (duration <= 0) throw 'Short audio'
 
-        PythonShell.run('server/services/py_speech/speech_to_text.py', options, (err, res) => {
-            fs.unlink(fileName, (e) => {
-                error(e)
-                if (e) reject(e);
-            });
+    duration = (duration / 60).toFixed(2)
 
-            if (err) {
-                error(err)
-                reject(err)
-            }
-            if (res) {
-                positive_action('Sound Message!', res)
-                resolve(new Message({
-                    from: userID,
-                    chatID: data.chatId,
-                    message: res.join('.'),
-                    sound: true,
-                    sound_bits: data.sound
-                }))
-            }
-        });
+
+    let message = new Message({
+        from: user.id,
+        chatId: chat.id,
+        soundBits: data.voiceClip,
+        duration: duration
     })
 
-}
-
-/**
- * This endpoint is on a new message - both sound and text
- * @param data - chat and message data, should have data.type to know if this is a sound message or not
- * @param userID - decoded from token
- * @returns {Promise<Query<Document | null, Document>>} - returns the new message once it has been saved in a format ready to append on the client
- */
-export async function newMessage(data, userID) {
-    let [chat, user] = await checkChatData(data, userID)
-    let message;
-    if (data.type === 'text') {
-        // This means the message is pure text
-        message = new Message({
-            from: user.id,
-            chatID: chat.id,
-            message: data.message
-        })
-    } else if (data.type === 'sound' && data.sound) {
-        message = await handleSoundMessage(data, userID)
-    } else {
-        throw 'Data.type must be defined!'
-    }
 
     await message.save()
+
+    if (chat.noob.equals(userId)) {
+        console.log('need to fix the offer')
+        console.log(chat.offer)
+        order.usedMinutes = order.usedMinutes + duration
+        await order.save()
+    }
+
+    chat.lastMessage = message._id
+    await chat.save()
 
     return Message.findById(message._id).populate({
         path: 'from',
@@ -109,4 +77,47 @@ export async function newMessage(data, userID) {
 }
 
 
-
+//
+///**
+//  * Function used by the new message endpoint.
+//  * @param data
+//  * @param userID
+//  * @returns {Promise<unknown>}
+//  */
+// async function handleSoundMessage(data, userID) {
+//
+//     let fileName = `${data.chatId}_${userID}.wav`
+//     let buff = Buffer.from(data.sound, 'base64');
+//     await fs.writeFileSync(fileName, buff)
+//
+//     let options = {
+//         mode: 'text',
+//         args: [fileName, 'en-EN']
+//     };
+//
+//     return new Promise((resolve, reject) => {
+//
+//         PythonShell.run('server/services/py_speech/speech_to_text.py', options, (err, res) => {
+//             fs.unlink(fileName, (e) => {
+//                 error(e)
+//                 if (e) reject(e);
+//             });
+//
+//             if (err) {
+//                 error(err)
+//                 reject(err)
+//             }
+//             if (res) {
+//                 positive_action('Sound Message!', res)
+//                 resolve(new Message({
+//                     from: userID,
+//                     chatID: data.chatId,
+//                     message: res.join('.'),
+//                     sound: true,
+//                     sound_bits: data.sound
+//                 }))
+//             }
+//         });
+//     })
+//
+// }

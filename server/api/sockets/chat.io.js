@@ -7,8 +7,65 @@ export class ChatHandler {
         this.io = io
         this.handler = {
             getChats: this.getChats,
-            offerProposition: this.offerProposition
+            offerProposition: this.offerProposition,
+            getOffer: this.getOffer,
+            acceptOffer: this.acceptOffer,
+            rejectOffer: this.rejectOffer,
+            getMinutesBalance: this.getMinutesBalance,
         };
+    }
+
+    getMinutesBalance = (data, ackFn) => {
+        chatService.getMinutesBalance(data, this.socket.decoded_token.sub).then(minutes => {
+            if (minutes) {
+                ackFn(null, minutes)
+            } else {
+                ackFn(null, {})
+            }
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
+    }
+
+    acceptOffer = (data, ackFn) => {
+        chatService.decisionOfferById(data, this.socket.decoded_token.sub, true).then(offer => {
+            if (offer) {
+                ackFn(null, offer)
+            } else {
+                ackFn(null, {})
+            }
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
+    }
+
+    rejectOffer = (data, ackFn) => {
+        chatService.decisionOfferById(data, this.socket.decoded_token.sub, false).then(offer => {
+            console.log(offer)
+            if (offer) {
+                ackFn(null, offer)
+            } else {
+                ackFn(null, {})
+            }
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
+    }
+
+    getOffer = (data, ackFn) => {
+        chatService.getOfferById(data, this.socket.decoded_token.sub).then(offer => {
+            if (offer) {
+                ackFn(null, offer)
+            } else {
+                ackFn(null, {})
+            }
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
     }
 
     getChats = (data, acknowledgeFn) => {

@@ -11,9 +11,12 @@ export class MessageHandler {
         };
     }
 
-    newMessage = (data, acknowledgeFn) => {
+    newMessage = (data, ackFn) => {
         messageService.newMessage(data, this.socket.decoded_token.sub).then((m) => {
-            this.io.to(data.chatId).emit('newMessage', m)
+            if (m){
+                ackFn(null,{})
+            }
+            // this.io.to(data.chatId).emit('newMessage', m)
         }).catch(e => error(e))
     }
 

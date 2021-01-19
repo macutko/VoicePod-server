@@ -16,6 +16,31 @@ export async function getChatByUserId(userID) {
         }).limit(20);
 }
 
+export async function getMinutesBalance(data, userId) {
+    let m = await Chat.findById(data.chatId).or([{'noob': userId}, {'consultant': userId}]).populate({
+        path: 'offer',
+        select: 'budgetMinutes usedMinutes'
+    })
+
+    let balance = m.offer.budgetMinutes - m.offer.usedMinutes
+    console.log(balance)
+    return {minutes: balance}
+}
+
+export async function getOfferById(data, userID) {
+    return Offer.findById(data.offerId)
+}
+
+export async function decisionOfferById(data, userId, decision) {
+    let chat = await Chat.find({offer: data.offerId}).and({consultant: userId})
+    if (!chat) throw 'Not possible'
+    let offer = await Offer.findById(data.offerId)
+    offer.accepted = decision
+    offer.dateOfDecision = Date.now()
+    return offer.save();
+
+}
+
 
 export async function offerProposition(data, userID) {
     if (!data.username) throw 'Need a consultant username'
