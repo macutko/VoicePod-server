@@ -2,20 +2,9 @@
 import bcrypt from 'bcryptjs'
 import {User} from '../models/db'
 import {Config} from "../config";
+import {sendNewBug} from "../utils/mailers";
 
-
-module.exports = {
-    getById,
-    create,
-    getByEmail,
-    getByUsername,
-    authenticate,
-    removeUser,
-    updateUser,
-    search
-};
-
-async function search(queryString, userID) {
+export async function search(queryString, userID) {
     let finds;
     finds = await User.find().and({businessActivated: true}).or([{'username': {$regex: queryString, $options: "i"}},
         {'firstName': {$regex: queryString, $options: "i"}},
@@ -28,8 +17,7 @@ async function search(queryString, userID) {
     if (finds.length !== 0) {
         for (const user in finds) {
             let u = finds[user]
-            if (u.id === userID) continue
-            else {
+            if (u.id !== userID) {
                 u = u.toJSON()
                 delete u.businessActivated
                 delete u.id
@@ -41,7 +29,19 @@ async function search(queryString, userID) {
 
 }
 
-async function updateUser(req) {
+export async function contactSupport(data, userId) {
+    if (!data.title) throw 'Need a title'
+    if (!data.message) throw 'Need a message'
+    let user = await User.findById(userId)
+    if (user) {
+        return await sendNewBug(`By: ${user.email}, Title: ${data.title}`, data.message)
+    } else {
+        return false
+    }
+
+}
+
+export async function updateUser(req) {
     let query = {'_id': req.user.sub};
     let data = req.body
     let newData = {}
@@ -71,11 +71,27 @@ async function updateUser(req) {
 }
 
 
-async function removeUser(userID) {
-    return User.findById(userID).remove().exec()
+export async function removeUser(userID) {
+    let query = {'_id': userID};
+    let newData = {
+        profilePicture: null,
+        confirmedEmail: false,
+        language: "en-EN",
+        businessActivated: false,
+        description: ' ',
+        price: 0.5,
+        searchTags: [],
+        firstName: 'Deleted',
+        lastName: 'user',
+        email: ` `,
+        username: `${userID}`,
+        pictureType: 'jpg'
+    }
+
+    return User.findOneAndUpdate(query, newData);
 }
 
-async function authenticate({username, password}) {
+export async function authenticate({username, password}) {
     const user = await User.findOne({username});
     if (user && bcrypt.compareSync(password, user.hash)) {
         let config = new Config()
@@ -89,7 +105,7 @@ async function authenticate({username, password}) {
     }
 }
 
-async function getById(id) {
+export async function getById(id) {
     let user = await User.findById(id);
     if (user) {
         user = user.toJSON()
@@ -99,15 +115,15 @@ async function getById(id) {
 }
 
 
-async function getByEmail(value) {
+export async function getByEmail(value) {
     return User.findOne({"email": value});
 }
 
-async function getByUsername(value) {
+export async function getByUsername(value) {
     return User.findOne({"username": value.toLowerCase()});
 }
 
-async function create(userParam) {
+export async function create(userParam) {
     // validate
     if (await User.findOne({username: userParam.username})) {
         throw 'Username "' + userParam.username.toLowerCase() + '" is already taken';

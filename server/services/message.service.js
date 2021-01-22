@@ -1,6 +1,7 @@
-import {Chat, Message, User,Offer} from '../models/db'
+import {Chat, Message, Offer, User} from '../models/db'
 import * as fs from "fs";
 import getAudioDurationInSeconds from "get-audio-duration";
+import {error} from "../utils/logging";
 
 /**
  * Function used to check whether the message operation can happen.
@@ -36,18 +37,35 @@ export async function getMessages(data, userId) {
 
 export async function newMessage(data, userId) {
     let [chat, user] = await checkChatData(data, userId)
-
+    //TODO: delete message after done
     if (!data.voiceClip) throw 'Need a sound'
 
     let fileName = `${data.chatId}_${userId}.wav`
     let buff = Buffer.from(data.voiceClip, 'base64');
     await fs.writeFileSync(fileName, buff)
-    let duration = (await getAudioDurationInSeconds(fileName)).toFixed(0)
+    let duration = parseFloat((await getAudioDurationInSeconds(fileName)).toFixed(0))
 
+    try {
+        fs.unlinkSync(fileName)
+    } catch (err) {
+        error(`Fialed to remove file ${err}`)
+    }
 
     if (duration <= 0) throw 'Short audio'
 
-    duration = (duration / 60).toFixed(2)
+    duration = parseFloat((duration / 60).toFixed(2))
+
+    if (chat.noob.equals(userId)) {
+
+        let offer = await Offer.findById(chat.offer)
+        if (parseFloat((offer.usedMinutes + duration).toFixed(2)) > offer.budgetMinutes) {
+            return [false, {message: 'Not enough minutes left'}]
+        } else {
+
+            offer.usedMinutes = parseFloat((offer.usedMinutes + duration).toFixed(2))
+            await offer.save()
+        }
+    }
 
 
     let message = new Message({
@@ -60,20 +78,15 @@ export async function newMessage(data, userId) {
 
     await message.save()
 
-    if (chat.noob.equals(userId)) {
-        console.log('need to fix the offer')
-        console.log(chat.offer)
-        order.usedMinutes = order.usedMinutes + duration
-        await order.save()
-    }
-
     chat.lastMessage = message._id
     await chat.save()
 
-    return Message.findById(message._id).populate({
+    let m = await Message.findById(message._id).populate({
         path: 'from',
         select: "firstName lastName email username"
     })
+
+    return [true, m.toJSON()]
 }
 
 

@@ -12,11 +12,13 @@ export class MessageHandler {
     }
 
     newMessage = (data, ackFn) => {
-        messageService.newMessage(data, this.socket.decoded_token.sub).then((m) => {
-            if (m){
-                ackFn(null,{})
+        messageService.newMessage(data, this.socket.decoded_token.sub).then(([success, message]) => {
+            if (success) {
+                ackFn(null, message)
+                this.io.to(data.chatId).emit('newMessage', {chatId: data.chatId, message: message})
+            } else {
+                ackFn(null, 'Not enough minutes')
             }
-            // this.io.to(data.chatId).emit('newMessage', m)
         }).catch(e => error(e))
     }
 

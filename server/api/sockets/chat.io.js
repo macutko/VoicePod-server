@@ -12,9 +12,34 @@ export class ChatHandler {
             acceptOffer: this.acceptOffer,
             rejectOffer: this.rejectOffer,
             getMinutesBalance: this.getMinutesBalance,
+            joinChat: this.joinChat,
+            closeChat: this.closeChat
         };
     }
 
+    closeChat = (data,ackFn) =>{
+        chatService.closeChat(data, this.socket.decoded_token.sub).then(res => {
+            if (res) {
+                ackFn(null, res)
+            } else {
+                ackFn(null, {})
+            }
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
+    }
+
+    joinChat = (data, ackFn) => {
+        if (data.chatId) {
+            this.socket.join(data.chatId)
+
+            positive_action('JOINED CHAT!', `${data.chatId}`)
+            ackFn(null, true)
+        } else {
+            ackFn(null, 'Need a chatId')
+        }
+    }
     getMinutesBalance = (data, ackFn) => {
         chatService.getMinutesBalance(data, this.socket.decoded_token.sub).then(minutes => {
             if (minutes) {

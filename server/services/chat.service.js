@@ -1,15 +1,20 @@
 ﻿import {Chat, Offer, User} from '../models/db'
 
-export async function getChatByUserId(userID) {
-    return Chat.find().or([{'noob': userID}, {'consultant': userID}])
+export async function closeChat(data,userId){
+
+    return true
+}
+
+export async function getChatByUserId(userId) {
+    return Chat.find().or([{'noob': userId}, {'consultant': userId}])
         .populate({
             path: 'noob',
             select: "username firstName lastName profilePicture pictureType",
-            match: {_id: {$ne: userID}}
+            match: {_id: {$ne: userId}}
         }).populate({
             path: 'consultant',
             select: "username firstName lastName profilePicture pictureType",
-            match: {_id: {$ne: userID}}
+            match: {_id: {$ne: userId}}
         }).populate({
             path: 'lastMessage',
             select: "read"
@@ -23,7 +28,6 @@ export async function getMinutesBalance(data, userId) {
     })
 
     let balance = m.offer.budgetMinutes - m.offer.usedMinutes
-    console.log(balance)
     return {minutes: balance}
 }
 
