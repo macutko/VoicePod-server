@@ -2,14 +2,8 @@ import {Chat, Message, Offer, User} from '../models/db'
 import * as fs from "fs";
 import getAudioDurationInSeconds from "get-audio-duration";
 import {error} from "../utils/logging";
+import {axiosInstance} from "../utils/connectionInstances";
 
-/**
- * Function used to check whether the message operation can happen.
- *
- * @param data - data passed in by the socket, much have chat id
- * @param userId - user ID decoded from token
- * @returns {Promise<any[]>} - should return relevant chat object and user object
- */
 
 async function checkChatData(data, userId) {
     if (!data.chatId) throw 'Need a chatId!'
@@ -23,6 +17,37 @@ async function checkChatData(data, userId) {
 
     return [chat, user]
 }
+
+
+export async function getTranscript(data, userId) {
+    if (!data.messageId) throw 'need a message Id'
+    let message = await Message.findById(data.messageId)
+    if (message.transcript !== '') return [true, message.transcript]
+
+    let [chat, user] = await checkChatData({chatId: message.chatId}, userId)
+
+    let success;
+    await axiosInstance.post('get_transcript', {
+        soundBits: message.soundBits,
+        name: `${data.messageId}_${userId}.wav`
+    }).then((response) => {
+        if (response.data) {
+            if (response.data.success) {
+                message.transcript = response.data.text
+                success = true
+            } else {
+                success = false
+            }
+        }
+    }).catch((err) => {
+        error(err)
+    });
+
+    await message.save()
+
+    return [success, message.transcript]
+}
+
 
 export async function getMessages(data, userId) {
     let [chat, user] = await checkChatData(data, userId)

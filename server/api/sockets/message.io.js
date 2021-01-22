@@ -8,7 +8,19 @@ export class MessageHandler {
         this.handler = {
             newMessage: this.newMessage,
             getMessages: this.getMessages,
+            getTranscript: this.getTranscript,
         };
+    }
+
+    getTranscript = (data, ackFn) => {
+        messageService.getTranscript(data, this.socket.decoded_token.sub).then(([success, message]) => {
+
+            if (success) {
+                ackFn(null, message)
+            } else {
+                ackFn(null, 'Not got it, soz')
+            }
+        }).catch(e => error(e))
     }
 
     newMessage = (data, ackFn) => {
