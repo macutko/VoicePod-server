@@ -14,6 +14,7 @@ module.exports = router;
 
 function removeUser(req, res, next) {
     userService.removeUser(req.user.sub).then((r) => {
+
         if (r) {
             res.sendStatus(200)
         } else {

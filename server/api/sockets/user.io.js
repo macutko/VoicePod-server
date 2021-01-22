@@ -1,4 +1,4 @@
-import {negative_action, positive_action} from "../../utils/logging";
+import {error, negative_action, positive_action} from "../../utils/logging";
 import * as userService from '../../services/user.service'
 
 export class MainHandler {
@@ -8,22 +8,25 @@ export class MainHandler {
 
         this.handler = {
             terminate: this.terminate,
-            joinChats: this.joinChats,
             search: this.search,
+            contactSupport: this.contactSupport
         };
+    }
+
+    contactSupport = (data, ackFn) => {
+        userService.contactSupport(data, this.socket.decoded_token.sub).then((r) => {
+            if (r && r.accepted.length > 0) ackFn(null, true)
+            else ackFn(null, false)
+        }).catch((err) => {
+            error(`Error in user.io ${err}`)
+            ackFn(500, null)
+        })
     }
 
     terminate = (data) => {
         negative_action(`DISCONNECTED:`, `${this.socket.decoded_token.sub}`)
     }
-    joinChats = (data, ackFn) => {
-        for (const item of data) {
-            this.socket.join(item.chatId)
-        }
-        positive_action('JOINED CHATS!', `${this.socket.decoded_token.sub}`)
-        ackFn(null, `Should be joined to all chats ${data}`)
 
-    }
 
     search = (data, ackFn) => {
         userService.search(data.searchQuery, this.socket.decoded_token.sub).then((r) => {
