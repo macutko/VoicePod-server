@@ -74,13 +74,20 @@ function getCurrent(req, res, next) {
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then(({user, token}) => {
-            if (user.username != null && token != null) {
-                res.json({user:user,token:token});
-                log.log(" 200 User logged in!")
-            } else {
-                log.log("401 User attempted login. Bad pass or Username");
-                res.status(401).json({message: "Username or password is incorrect"})
+        .then(({user, token, errCode}) => {
+            switch (errCode) {
+                case 401:
+                    log.log("401 User attempted login. Bad pass");
+                    res.status(401).json({message: "Password is incorrect"})
+                    break;
+                case 404:
+                    log.log("404 Username not found");
+                    res.status(404).json({message: "Username not found"})
+                    break;
+                default:
+                    res.json({user:user,token:token});
+                    log.log("200 User logged in!")
+                    break;
             }
         })
         .catch(err => next(err));
