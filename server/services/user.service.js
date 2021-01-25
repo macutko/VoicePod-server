@@ -61,6 +61,17 @@ export async function updateUser(req) {
     }
     if (data.businessActivated != null || data.businessActivated !== undefined) {
         newData.businessActivated = data.businessActivated
+        if (newData.businessActivated) {
+            let conf = new Config()
+
+            const Stripe = require('stripe');
+            const stripe = Stripe(conf.stripeSecret);
+
+            const account = await stripe.accounts.create({
+                type: 'standard',
+            });
+            console.log(account)
+        }
     }
     if (data.price != null || data.price !== undefined) {
         if (data.price > 0 && !isNaN(data.price)) {
