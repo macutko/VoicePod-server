@@ -42,7 +42,8 @@
     "python-shell": "^2.0.3",
     "rootpath": "^0.1.2",
     "socket.io": "^2.3.0",
-    "socketio-jwt": "^4.5.0"
+    "socketio-jwt": "^4.5.0",
+    "stripe": "^8.132.0"
   },
   "devDependencies": {},
   "babel": {
