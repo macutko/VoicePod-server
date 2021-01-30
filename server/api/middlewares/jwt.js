@@ -13,7 +13,7 @@ function jwt() {
             '/user/authenticate',
             '/user/create',
             '/user/exists',
-            '/client-error/'
+            '/client-error/',
         ]
     });
 }

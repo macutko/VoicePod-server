@@ -1,14 +1,24 @@
 ﻿import {Chat, Offer, User} from '../models/db'
+import {Config} from "../config";
+import {checkChatData} from "./message.service";
 
-export async function closeChat(data,userId){
+let config = new Config()
+
+export async function closeChat(data, userId) {
+    console.log(data.chatId)
+    let[chat,user] = await checkChatData(data,userId)
+
+    chat.status = 'closed'
+
+    await chat.save()
 
     return true
 }
 
 export async function getChatByUserId(userId) {
-    return Chat.find().or([{'noob': userId}, {'consultant': userId}])
+    return Chat.find().or([{'customer': userId}, {'consultant': userId}])
         .populate({
-            path: 'noob',
+            path: 'customer',
             select: "username firstName lastName profilePicture pictureType",
             match: {_id: {$ne: userId}}
         }).populate({
@@ -22,58 +32,10 @@ export async function getChatByUserId(userId) {
 }
 
 export async function getMinutesBalance(data, userId) {
-    let m = await Chat.findById(data.chatId).or([{'noob': userId}, {'consultant': userId}]).populate({
-        path: 'offer',
-        select: 'budgetMinutes usedMinutes'
-    })
+    let m = await Chat.findById(data.chatId).or([{'customer': userId}, {'consultant': userId}])
 
-    let balance = m.offer.budgetMinutes - m.offer.usedMinutes
+    let balance = m.budgetMinutes - m.usedMinutes
     return {minutes: balance}
-}
-
-export async function getOfferById(data, userID) {
-    return Offer.findById(data.offerId)
-}
-
-export async function decisionOfferById(data, userId, decision) {
-    let chat = await Chat.find({offer: data.offerId}).and({consultant: userId})
-    if (!chat) throw 'Not possible'
-    let offer = await Offer.findById(data.offerId)
-    offer.accepted = decision
-    offer.dateOfDecision = Date.now()
-    return offer.save();
-
-}
-
-
-export async function offerProposition(data, userID) {
-    if (!data.username) throw 'Need a consultant username'
-    if (!data.intro || !data.problem || !data.advice || !data.outcome || !data.budget) throw 'No voice clip or budget'
-
-    if (!userID) throw 'SECURITY ISSUE!'
-
-    let consultant = await User.findOne({username: data.username})
-
-
-    let newOffer = new Offer({
-        introSoundBits: data.intro,
-        problemSoundBits: data.problem,
-        adviceSoundBits: data.advice,
-        outcomeSoundBits: data.outcome,
-        budgetMinutes: data.budget
-    })
-
-    newOffer = await newOffer.save()
-
-    let newChat = new Chat({
-        offer: newOffer.id,
-        consultant: consultant.id,
-        noob: userID,
-    })
-
-    let n = await newChat.save()
-
-    return n.toJSON()
 }
 
 

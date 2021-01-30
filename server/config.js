@@ -27,7 +27,7 @@ export class Config {
                     to: 'incoming+macutko-tldl-client-22930948-issue-@incoming.gitlab.com',
                 };
                 this.connectionString = "mongodb+srv://admin:TAGAdmin@server-v3-1-wnt86.mongodb.net/CONZLT_dev?retryWrites=true&w=majority"
-                this.stripeSecret = 'rk_test_51HyGYuGoaeZWNjELnpyMdwixUbqERO9JCTM8N0TD6H7mhFj9ZvbmnOpq6NubBa0HT8n1BJdqQuc8i8Wpdzf8CYnE00T4GarJYH'
+                this.stripe = require('stripe')('rk_test_51IDSTZECU7HrwjM1CctplX9fQXrLB635qNpBL6QpCyKXHQUXlMFyDCjbggdyvoqzhqBCthsR1rBbBDvIRjDVZXwK00BZo1zUxg')
                 this.secret = "THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET, IT CAN BE ANY STRING"
             } else {
                 throw 'Please set up your environment variables properly'

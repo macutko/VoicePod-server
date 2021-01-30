@@ -14,6 +14,8 @@ import {errorHandler} from "./api/middlewares/errorHandler";
 import {ChatHandler} from "./api/sockets/chat.io";
 import {MessageHandler} from "./api/sockets/message.io";
 import {Config} from "./config";
+import {BusinessHandler} from "./api/sockets/business.io";
+import {OfferHandler} from "./api/sockets/offer.io";
 
 let conf = new Config()
 
@@ -50,6 +52,8 @@ io.on('connection', authorize({
         main: new MainHandler(socket, io),
         chat: new ChatHandler(socket, io),
         message: new MessageHandler(socket, io),
+        business: new BusinessHandler(socket, io),
+        offer: new OfferHandler(socket, io)
     };
 
     // Bind events to handlers

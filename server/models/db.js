@@ -20,4 +20,5 @@ module.exports = {
     Message: require('./message.model'),
     Review: require('./review.model'),
     Offer: require('./offer.model'),
+    BusinessProfile: require('./businessProfile.model'),
 };
