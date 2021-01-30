@@ -69,7 +69,7 @@ export async function updateUser(req) {
         if (data.businessActivated && !user.businessProfile) {
 
             const account = await config.stripe.accounts.create({
-                type: 'standard',
+                type: 'express',
             });
 
             let new_BusinessProfile = new BusinessProfile({stripeId: account.id})

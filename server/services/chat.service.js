@@ -1,4 +1,4 @@
-﻿import {Chat, Offer, User} from '../models/db'
+﻿import {Chat, User} from '../models/db'
 import {Config} from "../config";
 import {checkChatData} from "./message.service";
 
@@ -6,7 +6,16 @@ let config = new Config()
 
 export async function closeChat(data, userId) {
     console.log(data.chatId)
-    let[chat,user] = await checkChatData(data,userId)
+    let [chat, user] = await checkChatData(data, userId)
+
+    let consultant = await User.findById(chat.consultant).populate({path: 'businessProfile'})
+    if (!consultant) throw' There is no consultant to this chat'
+
+    //TODO: handle delete of user consultant before closechat
+
+    let consultantStripe = await config.stripe.accounts.retrieve(consultant.businessProfile.stripeId)
+
+    // if (!consultantStripe)
 
     chat.status = 'closed'
 
