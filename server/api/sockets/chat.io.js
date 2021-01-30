@@ -7,17 +7,13 @@ export class ChatHandler {
         this.io = io
         this.handler = {
             getChats: this.getChats,
-            offerProposition: this.offerProposition,
-            getOffer: this.getOffer,
-            acceptOffer: this.acceptOffer,
-            rejectOffer: this.rejectOffer,
             getMinutesBalance: this.getMinutesBalance,
             joinChat: this.joinChat,
             closeChat: this.closeChat
         };
     }
 
-    closeChat = (data,ackFn) =>{
+    closeChat = (data, ackFn) => {
         chatService.closeChat(data, this.socket.decoded_token.sub).then(res => {
             if (res) {
                 ackFn(null, res)
@@ -53,45 +49,6 @@ export class ChatHandler {
         })
     }
 
-    acceptOffer = (data, ackFn) => {
-        chatService.decisionOfferById(data, this.socket.decoded_token.sub, true).then(offer => {
-            if (offer) {
-                ackFn(null, offer)
-            } else {
-                ackFn(null, {})
-            }
-        }).catch(e => {
-            ackFn(500, null)
-            error(e)
-        })
-    }
-
-    rejectOffer = (data, ackFn) => {
-        chatService.decisionOfferById(data, this.socket.decoded_token.sub, false).then(offer => {
-            console.log(offer)
-            if (offer) {
-                ackFn(null, offer)
-            } else {
-                ackFn(null, {})
-            }
-        }).catch(e => {
-            ackFn(500, null)
-            error(e)
-        })
-    }
-
-    getOffer = (data, ackFn) => {
-        chatService.getOfferById(data, this.socket.decoded_token.sub).then(offer => {
-            if (offer) {
-                ackFn(null, offer)
-            } else {
-                ackFn(null, {})
-            }
-        }).catch(e => {
-            ackFn(500, null)
-            error(e)
-        })
-    }
 
     getChats = (data, acknowledgeFn) => {
         chatService.getChatByUserId(this.socket.decoded_token.sub)
@@ -108,18 +65,6 @@ export class ChatHandler {
                 error(err)
                 acknowledgeFn(err, null)
             });
-    }
-
-    offerProposition = (data, ackFn) => {
-        chatService.offerProposition(data, this.socket.decoded_token.sub).then(r => {
-            if (r) {
-                ackFn(null, r)
-            } else {
-                ackFn(500, null)
-            }
-        }).catch(err => {
-            ackFn(500, null)
-        })
     }
 
 }

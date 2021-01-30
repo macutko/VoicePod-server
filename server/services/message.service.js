@@ -1,15 +1,15 @@
-import {Chat, Message, Offer, User} from '../models/db'
+import {Chat, Message, User} from '../models/db'
 import * as fs from "fs";
 import getAudioDurationInSeconds from "get-audio-duration";
 import {error} from "../utils/logging";
 import {axiosInstance} from "../utils/connectionInstances";
 
 
-async function checkChatData(data, userId) {
+export async function checkChatData(data, userId) {
     if (!data.chatId) throw 'Need a chatId!'
     if (!userId) throw 'need a user ID'
 
-    let chat = await Chat.findById(data.chatId).or([{'noob': userId}, {'consultant': userId}])
+    let chat = await Chat.findById(data.chatId).or([{'customer': userId}, {'consultant': userId}])
     if (!chat) throw 'No chat by this ID'
 
     let user = await User.findById(userId)
@@ -62,7 +62,7 @@ export async function getMessages(data, userId) {
 
 export async function newMessage(data, userId) {
     let [chat, user] = await checkChatData(data, userId)
-    //TODO: delete message after done
+
     if (!data.voiceClip) throw 'Need a sound'
 
     let fileName = `${data.chatId}_${userId}.wav`
@@ -80,15 +80,13 @@ export async function newMessage(data, userId) {
 
     duration = parseFloat((duration / 60).toFixed(2))
 
-    if (chat.noob.equals(userId)) {
 
-        let offer = await Offer.findById(chat.offer)
-        if (parseFloat((offer.usedMinutes + duration).toFixed(2)) > offer.budgetMinutes) {
+    if (chat.customer.equals(userId)) {
+
+        if (parseFloat((chat.usedMinutes + duration).toFixed(2)) > chat.budgetMinutes) {
             return [false, {message: 'Not enough minutes left'}]
         } else {
-
-            offer.usedMinutes = parseFloat((offer.usedMinutes + duration).toFixed(2))
-            await offer.save()
+            chat.usedMinutes = parseFloat((chat.usedMinutes + duration).toFixed(2))
         }
     }
 

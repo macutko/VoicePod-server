@@ -2,6 +2,7 @@ import {model, Schema} from 'mongoose'
 
 const schema = new Schema({
     username: {type: Schema.Types.String, unique: true, required: true, lowercase: true},
+    stripeCustomerId: {type: Schema.Types.String, unique: true, required: true},
     hash: {type: Schema.Types.String, required: true},
     firstName: {type: Schema.Types.String, required: true},
     lastName: {type: Schema.Types.String, required: true},
@@ -13,8 +14,8 @@ const schema = new Schema({
     language: {type: Schema.Types.String, default: 'en-EN'}, // TODO: this is for the future once we enable multiple languages for transcript
     businessActivated: {type: Schema.Types.Boolean, default: false},
     description: {type: Schema.Types.String, default: "Add a BIO of yourself"},
-    price: {type: Schema.Types.Number, default: 0.5, min: [0.1]},
-    searchTags: [{type: Schema.Types.String}]
+    searchTags: [{type: Schema.Types.String}],
+    businessProfile: {type: Schema.Types.ObjectId, ref: 'BusinessProfile', default: null},
 });
 
 schema.set('toJSON', {
@@ -25,7 +26,9 @@ schema.set('toJSON', {
         delete ret.hash;
         delete ret.confirmedEmail;
         delete ret.createdDate;
-        delete ret.id
+        delete ret.id;
+        delete ret.businessProfile;
+        delete ret.stripeCustomerId;
     }
 });
 

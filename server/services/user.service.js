@@ -1,8 +1,11 @@
-﻿import {Config} from "../config";
-import {User} from '../models/db'
+import {Config} from "../config";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+
 import {sendNewBug} from "../utils/mailers";
+import {BusinessProfile, User} from '../models/db'
+
+let config = new Config()
 
 export async function search(queryString, userID) {
     let finds;
@@ -42,43 +45,43 @@ export async function contactSupport(data, userId) {
 }
 
 export async function updateUser(req) {
-    let query = {'_id': req.user.sub};
+
     let data = req.body
-    let newData = {}
+    let user = await User.findById(req.user.sub)
+    if (!user) throw "No such user!"
+
     if (data.profilePicture && data.pictureType) {
         // TODO: check that this is a file that works
-        newData.profilePicture = data.profilePicture
-        newData.pictureType = data.pictureType
+        user.profilePicture = data.profilePicture
+        user.pictureType = data.pictureType
     }
     if (data.firstName) {
-        newData.firstName = data.firstName
+        user.firstName = data.firstName
     }
     if (data.lastName) {
-        newData.lastName = data.lastName
+        user.lastName = data.lastName
     }
     if (data.description) {
-        newData.description = data.description
+        user.description = data.description
     }
     if (data.businessActivated != null || data.businessActivated !== undefined) {
-        newData.businessActivated = data.businessActivated
-        if (newData.businessActivated) {
-            let conf = new Config()
+        user.businessActivated = data.businessActivated
 
-            const Stripe = require('stripe');
-            const stripe = Stripe(conf.stripeSecret);
+        if (data.businessActivated && !user.businessProfile) {
 
-            const account = await stripe.accounts.create({
-                type: 'standard',
+            const account = await config.stripe.accounts.create({
+                type: 'express',
             });
-            console.log(account)
+
+            let new_BusinessProfile = new BusinessProfile({stripeId: account.id})
+            await new_BusinessProfile.save()
+            user.businessProfile = new_BusinessProfile.id
         }
     }
-    if (data.price != null || data.price !== undefined) {
-        if (data.price > 0 && !isNaN(data.price)) {
-            newData.price = data.price
-        }
-    }
-    return User.findOneAndUpdate(query, newData, {new: true});
+
+
+    await user.save()
+    return user.toJSON()
 }
 
 
@@ -106,7 +109,6 @@ export async function authenticate({username, password}) {
     const user = await User.findOne({username});
     if (user) {
         if (bcrypt.compareSync(password, user.hash)) {
-            let config = new Config()
             const token = jwt.sign({sub: user.id}, config.secret);
             let u = user.toJSON();
             delete u.id;
@@ -120,12 +122,13 @@ export async function authenticate({username, password}) {
             return {user: '', token: '', errCode: 401}
         }
     } else {
-        return { user: '', token: '', errCode: 404}
+        return {user: '', token: '', errCode: 404}
     }
 }
 
 export async function getById(id) {
-    let user = await User.findById(id);
+    let user = await User.findById(id)
+
     if (user) {
         user = user.toJSON()
         delete user.id
@@ -153,6 +156,14 @@ export async function create(userParam) {
         throw 'Email "' + userParam.email + '" is already used by another user';
     }
 
+
+    const customer = await config.stripe.customers.create({
+        email: userParam.email,
+        name: userParam.username
+    });
+
+    userParam.stripeCustomerId = customer.id
+
     const user = new User(userParam);
 
     // hash password
@@ -164,7 +175,7 @@ export async function create(userParam) {
 
     // save user
     let token;
-    let config = new Config()
+
     await user.save().then((newUser) => {
         token = jwt.sign({sub: newUser.id}, config.secret);
     });
@@ -175,4 +186,68 @@ export async function create(userParam) {
     };
 }
 
+export async function addPaymentMethod(data, userId) {
 
+    let user = await User.findById(userId)
+    if (!user) throw 'no such user!'
+    if (!data.paymentMethod) throw 'Need a payment method'
+
+    const setupIntent = await config.stripe.setupIntents.create({
+        payment_method_types: ['card'],
+        customer: user.stripeCustomerId,
+        payment_method: data.paymentMethod
+    });
+
+    // console.log('pre update')
+    // await config.stripe.customers.update(
+    //     user.stripeCustomerId,
+    //     {invoice_settings: {default_payment_method: data.paymentMethod}}
+    // );
+
+    return setupIntent.client_secret
+}
+
+export async function setDefaultPaymentMethod(data, userId) {
+
+    let user = await User.findById(userId)
+    if (!user) throw 'no such user!'
+    if (!data.paymentMethod) throw 'Need a payment method'
+
+    await config.stripe.customers.update(
+        user.stripeCustomerId,
+        {invoice_settings: {default_payment_method: data.paymentMethod}}
+    );
+
+    return true //TODO: return smthing meaningful
+}
+
+export async function getDefaultPaymentMethod(data, userId) {
+
+    let user = await User.findById(userId)
+    if (!user) throw 'no such user!'
+
+    const customer = await config.stripe.customers.retrieve(
+        user.stripeCustomerId,
+    );
+
+    if (!customer.invoice_settings.default_payment_method) return {}
+
+    const paymentMethod = await config.stripe.paymentMethods.retrieve(
+        customer.invoice_settings.default_payment_method
+    );
+    // const paymentMethods = await config.stripe.paymentMethods.list({});
+
+    console.log(paymentMethod.data)
+    return paymentMethod
+}
+
+export async function checkDefaultPaymentMethod(userId) {
+    let user = await User.findById(userId)
+
+    if (!user) throw 'Security Alert'
+
+    let payment = await config.stripe.customers.retrieve(user.stripeCustomerId)
+
+    return !!payment.invoice_settings.default_payment_method
+
+}

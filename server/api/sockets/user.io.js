@@ -9,8 +9,52 @@ export class MainHandler {
         this.handler = {
             terminate: this.terminate,
             search: this.search,
-            contactSupport: this.contactSupport
+            contactSupport: this.contactSupport,
+            addPaymentMethod: this.addPaymentMethod,
+            getPaymentMethod: this.getPaymentMethod,
+            setDefaultPaymentMethod: this.setDefaultPaymentMethod,
+            checkDefaultPaymentMethod: this.checkDefaultPaymentMethod,
         };
+    }
+
+    checkDefaultPaymentMethod = (data, ackFn) => {
+        userService.checkDefaultPaymentMethod(this.socket.decoded_token.sub).then(r => {
+            if (r) ackFn(null, r)
+        }).catch(err => {
+            error(err)
+            ackFn(500, null)
+        })
+    }
+
+    setDefaultPaymentMethod = (data, ackFn) => {
+        userService.setDefaultPaymentMethod(data, this.socket.decoded_token.sub).then(r => {
+            if (r) ackFn(null, r)
+            else ackFn(null, {})
+        }).catch(err => {
+            error(err)
+            ackFn(500, null)
+        })
+    }
+
+    getPaymentMethod = (data, ackFn) => {
+        userService.getDefaultPaymentMethod(data, this.socket.decoded_token.sub).then(r => {
+            if (r) ackFn(null, r)
+            else ackFn(null, {})
+        }).catch(err => {
+            error(err)
+            ackFn(500, null)
+        })
+    }
+
+
+    addPaymentMethod = (data, ackFn) => {
+        userService.addPaymentMethod(data, this.socket.decoded_token.sub).then(r => {
+            if (r) ackFn(null, r)
+            else ackFn(null, {})
+        }).catch(err => {
+            error(err)
+            ackFn(500, null)
+        })
     }
 
     contactSupport = (data, ackFn) => {
@@ -38,6 +82,7 @@ export class MainHandler {
             negative_action('Error in search socket', `${e}`)
         })
     }
+
 
 }
 
