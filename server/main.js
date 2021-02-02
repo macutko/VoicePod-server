@@ -9,13 +9,14 @@ import {createServer} from "http"
 
 import {authorize} from "socketio-jwt";
 import {action} from "./utils/logging";
-import {MainHandler} from "./api/sockets/user.io";
+import {UserOptionsHandler} from "./api/sockets/userOptions.io";
 import {errorHandler} from "./api/middlewares/errorHandler";
 import {ChatHandler} from "./api/sockets/chat.io";
 import {MessageHandler} from "./api/sockets/message.io";
 import {Config} from "./config";
 import {BusinessHandler} from "./api/sockets/business.io";
 import {OfferHandler} from "./api/sockets/offer.io";
+import {ReviewHandler} from "./api/sockets/review.io";
 
 let conf = new Config()
 
@@ -49,11 +50,12 @@ io.on('connection', authorize({
 
     // Create event handlers for this socket
     let eventHandlers = {
-        main: new MainHandler(socket, io),
+        main: new UserOptionsHandler(socket, io),
         chat: new ChatHandler(socket, io),
         message: new MessageHandler(socket, io),
         business: new BusinessHandler(socket, io),
-        offer: new OfferHandler(socket, io)
+        offer: new OfferHandler(socket, io),
+        review: new ReviewHandler(socket, io)
     };
 
     // Bind events to handlers

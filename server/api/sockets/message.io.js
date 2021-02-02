@@ -6,25 +6,25 @@ export class MessageHandler {
         this.socket = socket;
         this.io = io
         this.handler = {
-            newMessage: this.newMessage,
+            createMessage: this.createMessage,
             getMessages: this.getMessages,
-            getTranscript: this.getTranscript,
+            // getTranscript: this.getTranscript,
         };
     }
 
-    getTranscript = (data, ackFn) => {
-        messageService.getTranscript(data, this.socket.decoded_token.sub).then(([success, message]) => {
+    // getTranscript = (data, ackFn) => {
+    //     messageService.getTranscript(data, this.socket.decoded_token.sub).then(([success, message]) => {
+    //
+    //         if (success) {
+    //             ackFn(null, message)
+    //         } else {
+    //             ackFn(null, 'Not got it, soz')
+    //         }
+    //     }).catch(e => error(e))
+    // }
 
-            if (success) {
-                ackFn(null, message)
-            } else {
-                ackFn(null, 'Not got it, soz')
-            }
-        }).catch(e => error(e))
-    }
-
-    newMessage = (data, ackFn) => {
-        messageService.newMessage(data, this.socket.decoded_token.sub).then(([success, message]) => {
+    createMessage = (data, ackFn) => {
+        messageService.createMessage(data, this.socket.decoded_token.sub).then(([success, message]) => {
             if (success) {
                 ackFn(null, message)
                 this.io.to(data.chatId).emit('newMessage', {chatId: data.chatId, message: message})

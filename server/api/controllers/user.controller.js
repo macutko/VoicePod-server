@@ -28,7 +28,9 @@ function removeUser(req, res, next) {
 
 function updateUser(req, res, next) {
     userService.updateUser(req).then((doc) => {
-        if (doc) {
+        if (doc.url) {
+            res.status(200).json(doc)
+        } else if (doc) {
             res.sendStatus(200)
         } else {
             res.sendStatus(500)
@@ -85,7 +87,7 @@ function authenticate(req, res, next) {
                     res.status(404).json({message: "Username not found"})
                     break;
                 default:
-                    res.json({user:user,token:token});
+                    res.json({user: user, token: token});
                     log.log("200 User logged in!")
                     break;
             }

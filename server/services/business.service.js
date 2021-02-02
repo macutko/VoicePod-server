@@ -18,14 +18,13 @@ export async function getBusinessProfile(data) {
     if (!data.email) throw 'Need email'
     if (!data.username) throw 'Need username'
 
-    let user = await User.findOne().and([{username: data.username}, {email: data.email}, {businessActivated: true}])
+    let user = await User.findOne().and([{username: data.username}, {email: data.email}, {businessActivated: true}]).populate({path: 'businessProfile'})
 
     if (!user) throw 'No such user'
     // console.log(`getBusinessprofile user ${user}`)
 
-    let profile = await BusinessProfile.findById(user.businessProfile);
     // console.log(`getBusinessprofile profile ${profile}`)
-    return profile
+    return user.businessProfile
 }
 
 export async function setPrice(data, userId) {
@@ -41,13 +40,11 @@ export async function setPrice(data, userId) {
 
 export async function getPrice(userId) {
     let [user, profile] = await __getUserAndProfileById(userId)
-
     return [profile.price, profile.currency]
 }
 
 export async function getCountry(userId) {
     let [user, profile] = await __getUserAndProfileById(userId)
-
     return profile.country
 }
 

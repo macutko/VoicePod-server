@@ -3,6 +3,11 @@ import {Chat, Offer, User} from "../models/db";
 
 let config = new Config()
 
+/**
+ * Get all the offers associated with a user
+ * @param userId
+ * @returns {Promise<Query<Array<Document>, Document>>}
+ */
 export async function getOffers(userId) {
     //TODO: return just ID's and make into a stream instead of long strings
     return Offer.find().or([{'customer': userId}, {'consultant': userId}])
@@ -17,10 +22,22 @@ export async function getOffers(userId) {
         }).limit(20);
 }
 
+/**
+ * get a specific offer by its ID
+ * @param data
+ * @param userID
+ * @returns {Promise<Query<Document | null, Document>>}
+ */
 export async function getOfferById(data, userID) {
     return Offer.findById(data.offerId)
 }
 
+/**
+ * Crete a new offer and lock the payment
+ * @param data
+ * @param userId
+ * @returns {Promise<{clientSecret: string}|boolean>}
+ */
 export async function createOffer(data, userId) {
     if (!data.username) throw 'Need a consultant username'
     if (!data.intro || !data.problem || !data.advice || !data.outcome || !data.budget) throw 'No voice clip or budget'
@@ -92,7 +109,7 @@ export async function acceptOffer(data, userId) {
     if (!data.offerId) throw 'Need offer id'
 
     let offer = await Offer.findById(data.offerId)
-
+    if (!offer) throw 'No such offer - broken reloading of the client on delete?'
     if (!(offer.consultant.equals(userId))) throw 'Not allowed'
 
     const paymentIntent = await config.stripe.paymentIntents.retrieve(

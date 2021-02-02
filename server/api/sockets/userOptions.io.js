@@ -1,13 +1,12 @@
 import {error, negative_action, positive_action} from "../../utils/logging";
-import * as userService from '../../services/user.service'
+import * as userService from '../../services/userOptions.service'
 
-export class MainHandler {
+export class UserOptionsHandler {
     constructor(socket, io) {
         this.socket = socket;
         this.io = io
 
         this.handler = {
-            terminate: this.terminate,
             search: this.search,
             contactSupport: this.contactSupport,
             addPaymentMethod: this.addPaymentMethod,
@@ -66,11 +65,6 @@ export class MainHandler {
             ackFn(500, null)
         })
     }
-
-    terminate = (data) => {
-        negative_action(`DISCONNECTED:`, `${this.socket.decoded_token.sub}`)
-    }
-
 
     search = (data, ackFn) => {
         userService.search(data.searchQuery, this.socket.decoded_token.sub).then((r) => {

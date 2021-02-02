@@ -9,8 +9,18 @@ export class ChatHandler {
             getChats: this.getChats,
             getMinutesBalance: this.getMinutesBalance,
             joinChat: this.joinChat,
-            closeChat: this.closeChat
+            closeChat: this.closeChat,
+            createChat: this.createChat
         };
+    }
+
+    createChat = (data, ackFn) => {
+        chatService.createFreeChat(data, this.socket.decoded_token.sub).then(res => {
+            ackFn(null, res)
+        }).catch(e => {
+            ackFn(500, null)
+            error(e)
+        })
     }
 
     closeChat = (data, ackFn) => {
@@ -29,7 +39,6 @@ export class ChatHandler {
     joinChat = (data, ackFn) => {
         if (data.chatId) {
             this.socket.join(data.chatId)
-
             positive_action('JOINED CHAT!', `${data.chatId}`)
             ackFn(null, true)
         } else {

@@ -33,6 +33,7 @@
     "get-audio-duration": "^2.0.3",
     "get-form-data": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
+    "mongo-sanitize": "^1.1.0",
     "mongodb": "^3.5.7",
     "mongoose": "^5.9.12",
     "node-aplay": "^1.0.3",
