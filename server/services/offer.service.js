@@ -40,7 +40,7 @@ export async function getOfferById(data, userID) {
  */
 export async function createOffer(data, userId) {
     if (!data.username) throw 'Need a consultant username'
-    if (!data.intro || !data.problem || !data.advice || !data.outcome || !data.budget) throw 'No voice clip or budget'
+    if (!data.intro || !data.problem || !data.budget) throw 'No voice clip or budget'
     if (data.budget <= 0) throw  'invalid budget'
 
     if (!userId) throw 'SECURITY ISSUE!'
@@ -72,8 +72,6 @@ export async function createOffer(data, userId) {
     let newOffer = new Offer({
         introSoundBits: data.intro,
         problemSoundBits: data.problem,
-        adviceSoundBits: data.advice,
-        outcomeSoundBits: data.outcome,
         budgetMinutes: data.budget,
         paymentIntentId: paymentIntent.id,
         customer: customer.id,
@@ -134,9 +132,7 @@ export async function acceptOffer(data, userId) {
                 status: 'paid',
                 paymentIntentId: offer.paymentIntentId,
                 introSoundBits: offer.introSoundBits,
-                adviceSoundBits: offer.adviceSoundBits,
                 problemSoundBits: offer.problemSoundBits,
-                outcomeSoundBits: offer.outcomeSoundBits,
                 budgetMinutes: offer.budgetMinutes,
                 price: offer.price
             })
@@ -178,9 +174,7 @@ export async function confirmOffer(data, userId) {
                 status: 'paid',
                 paymentIntentId: offer.paymentIntentId,
                 introSoundBits: offer.introSoundBits,
-                adviceSoundBits: offer.adviceSoundBits,
                 problemSoundBits: offer.problemSoundBits,
-                outcomeSoundBits: offer.outcomeSoundBits,
                 budgetMinutes: offer.budgetMinutes
 
             })
