@@ -99,8 +99,9 @@ export async function getDefaultPaymentMethod(data, userId) {
 }
 
 export async function checkDefaultPaymentMethod(userId) {
+    console.log(userId)
     let user = await User.findById(userId)
-
+    console.log(user)
     if (!user) throw 'Security Alert'
 
     let payment = await config.stripe.customers.retrieve(user.stripeCustomerId)
