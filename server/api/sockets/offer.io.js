@@ -7,7 +7,7 @@ export class OfferHandler {
         this.io = io
 
         this.handler = {
-            getOffers: this.getOffers,
+            getOffersByUserId: this.getOffersByUserId,
             createOffer: this.createOffer,
             getOfferById: this.getOfferById,
             acceptOffer: this.acceptOffer,
@@ -58,8 +58,8 @@ export class OfferHandler {
     }
 
 
-    getOffers = (data, ackFn) => {
-        offerService.getOffers(this.socket.decoded_token.sub).then(r => {
+    getOffersByUserId = (data, ackFn) => {
+        offerService.getOffersByUserId(this.socket.decoded_token.sub).then(r => {
             if (r) ackFn(null, r)
             else ackFn(null, [])
         }).catch(err => {

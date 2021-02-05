@@ -27,7 +27,8 @@ schema.set('toJSON', {
         delete ret.confirmedEmail;
         delete ret.createdDate;
         delete ret.id;
-        delete ret.businessProfile;
+        // TODO: this needs to be also activate BA for deploy
+        ret.businessProfile = !!ret.businessProfile
         delete ret.stripeCustomerId;
     }
 });

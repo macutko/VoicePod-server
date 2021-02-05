@@ -6,7 +6,7 @@ export class ChatHandler {
         this.socket = socket;
         this.io = io
         this.handler = {
-            getChats: this.getChats,
+            getChatsByUserId: this.getChatsByUserId,
             getMinutesBalance: this.getMinutesBalance,
             joinChat: this.joinChat,
             closeChat: this.closeChat,
@@ -59,7 +59,7 @@ export class ChatHandler {
     }
 
 
-    getChats = (data, acknowledgeFn) => {
+    getChatsByUserId = (data, acknowledgeFn) => {
         chatService.getChatByUserId(this.socket.decoded_token.sub)
             .then(chats => {
                 if (chats) {

@@ -29,6 +29,7 @@ function removeUser(req, res, next) {
 function updateUser(req, res, next) {
     userService.updateUser(req).then((doc) => {
         if (doc.url) {
+
             res.status(200).json(doc)
         } else if (doc) {
             res.sendStatus(200)

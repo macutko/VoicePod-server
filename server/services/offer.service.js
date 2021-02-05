@@ -8,7 +8,7 @@ let config = new Config()
  * @param userId
  * @returns {Promise<Query<Array<Document>, Document>>}
  */
-export async function getOffers(userId) {
+export async function getOffersByUserId(userId) {
     //TODO: return just ID's and make into a stream instead of long strings
     return Offer.find().or([{'customer': userId}, {'consultant': userId}])
         .populate({
