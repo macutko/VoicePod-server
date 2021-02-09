@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import {BusinessProfile, User} from '../models/db'
-import {Config} from "../config";
+import {BusinessProfile, User} from '../../models/db'
+import {Config} from "../../config";
 
 let config = new Config();
 
@@ -26,6 +26,7 @@ export async function updateUser(req) {
         user.description = data.description
     }
     let accountLinks;
+
     if (data.businessActivated != null || data.businessActivated !== undefined) {
         user.businessActivated = data.businessActivated
 

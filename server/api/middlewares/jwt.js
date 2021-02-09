@@ -1,6 +1,6 @@
 import expressJwt from 'express-jwt'
 import {Config} from "../../config";
-import {getById} from "../../services/user.service";
+import {getById} from "../../services/user/user.service";
 
 
 module.exports = jwt;

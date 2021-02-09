@@ -9,14 +9,17 @@ import {createServer} from "http"
 
 import {authorize} from "socketio-jwt";
 import {action} from "./utils/logging";
-import {UserOptionsHandler} from "./api/sockets/userOptions.io";
 import {errorHandler} from "./api/middlewares/errorHandler";
-import {ChatHandler} from "./api/sockets/chat.io";
-import {MessageHandler} from "./api/sockets/message.io";
+
 import {Config} from "./config";
-import {BusinessHandler} from "./api/sockets/business.io";
-import {OfferHandler} from "./api/sockets/offer.io";
-import {ReviewHandler} from "./api/sockets/review.io";
+
+
+import ChatHandler from "./api/sockets/chat";
+import UserOptionsHandler from "./api/sockets/user";
+import MessageHandler from "./api/sockets/message";
+import {OfferHandler} from "./api/sockets/offer";
+import ReviewHandler from "./api/sockets/review";
+import BusinessProfileHandler from "./api/sockets/businessProfile";
 
 let conf = new Config()
 
@@ -53,7 +56,7 @@ io.on('connection', authorize({
         main: new UserOptionsHandler(socket, io),
         chat: new ChatHandler(socket, io),
         message: new MessageHandler(socket, io),
-        business: new BusinessHandler(socket, io),
+        business: new BusinessProfileHandler(socket, io),
         offer: new OfferHandler(socket, io),
         review: new ReviewHandler(socket, io)
     };

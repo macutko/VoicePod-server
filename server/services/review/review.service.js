@@ -1,4 +1,4 @@
-import {Chat, Review, User} from "../models/db";
+import {Chat, Review, User} from "../../models/db";
 import sanitize from "mongo-sanitize";
 
 async function __validateUser(data, userId) {

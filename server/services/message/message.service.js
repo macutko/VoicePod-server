@@ -1,7 +1,7 @@
-import {Chat, Message, User} from '../models/db'
+import {Chat, Message, User} from '../../models/db'
 import * as fs from "fs";
 import getAudioDurationInSeconds from "get-audio-duration";
-import {error} from "../utils/logging";
+import {error} from "../../utils/logging";
 
 /**
  * Internally used function to validate if chat can be accessed by the user
@@ -123,7 +123,7 @@ export async function createMessage(data, userId) {
 
     chat.lastMessage = message._id
     await chat.save()
-
+    console.log('Message created')
 
     return [true, message.toJSON()]
 }
