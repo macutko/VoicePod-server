@@ -1,6 +1,6 @@
 import expressJwt from 'express-jwt'
 import {Config} from "../../config";
-import {getById} from "../../services/user/user.service";
+import {getUserById} from "../../services/user";
 
 
 module.exports = jwt;
@@ -19,7 +19,7 @@ function jwt() {
 }
 
 async function isRevoked(req, payload, done) {
-    const user = await getById(payload.sub);
+    const user = await getUserById(payload.sub);
 
     // revoke token if user no longer exists
     if (!user) {

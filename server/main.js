@@ -14,12 +14,12 @@ import {errorHandler} from "./api/middlewares/errorHandler";
 import {Config} from "./config";
 
 
-import ChatHandler from "./api/sockets/chat";
-import UserOptionsHandler from "./api/sockets/user";
-import MessageHandler from "./api/sockets/message";
-import {OfferHandler} from "./api/sockets/offer";
-import ReviewHandler from "./api/sockets/review";
-import BusinessProfileHandler from "./api/sockets/businessProfile";
+import ChatHandler from "./api/sockets/chat.socket";
+import UserOptionsHandler from "./api/sockets/user.socket";
+import MessageHandler from "./api/sockets/message.socket";
+import {OfferHandler} from "./api/sockets/offer.socket";
+import ReviewHandler from "./api/sockets/review.socket";
+import BusinessProfileHandler from "./api/sockets/businessProfile.socket";
 
 let conf = new Config()
 

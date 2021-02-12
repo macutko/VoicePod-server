@@ -1,4 +1,4 @@
-export {closeChat} from './closeChat'
+export {setCloseChat} from './setCloseChat'
 export {createFreeChat} from './createFreeChat'
 export {getPaidChatsByUserId} from './getPaidChatsByUserId'
 export {getMinutesBalance} from './getMinutesBalance'

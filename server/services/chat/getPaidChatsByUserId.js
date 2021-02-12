@@ -1,7 +1,6 @@
 import {Chat} from "../../models/db";
 
-export async function getPaidChatsByUserId(userId) {
-    console.log('here')
+export async function getPaidChatsByUserId(data, userId) {
     let ret = await Chat.find().or([{'customer': userId}, {'consultant': userId}]).and([{'type': 'paid'}])
         .populate({
             path: 'customer',
@@ -15,6 +14,6 @@ export async function getPaidChatsByUserId(userId) {
             path: 'lastMessage',
             select: "read"
         }).limit(20);
-    console.log(ret)
+    console.log(Object.keys(ret))
     return ret
 }

@@ -1,6 +1,7 @@
 import {Chat} from "../../models/db";
 
 export async function getOtherPartyDetailsByChatId(data, userId) {
+    console.log(data)
     if (!data.chatId) throw 'Need chat id'
 
     let chat = await Chat.findById(data.chatId).or([{'customer': userId}, {'consultant': userId}]).populate({
