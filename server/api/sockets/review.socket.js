@@ -19,6 +19,6 @@ export default class ReviewHandler {
         wrapper(getReviewByChatId, data, this.socket.decoded_token.sub, ackFn)
     }
     getReviewsOfUser = (data, ackFn) => {
-        wrapper(getReviewsOfUser(), data, this.socket.decoded_token.sub, ackFn)
+        wrapper(getReviewsOfUser, data, this.socket.decoded_token.sub, ackFn)
     }
 }

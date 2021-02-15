@@ -1,13 +1,19 @@
 import {User} from "../../models/db";
 
 
-export async function searchUser(queryString, userID) {
+export async function searchUser(data, userID) {
+    if (!data.searchQuery) throw 'need a search query!'
     let finds;
-    finds = await User.find().and({"businessActivated": true}).or([{'username': {$regex: queryString, $options: "i"}},
-        {'firstName': {$regex: queryString, $options: "i"}},
-        {'lastName': {$regex: queryString, $options: "i"}},
-        {'description': {$regex: queryString, $options: "i"}},
-        {'searchTags': {$regex: queryString, $options: "i"}}]);
+    finds = await User.find().and({"businessActivated": true}).or([{
+        'username': {
+            $regex: data.searchQuery,
+            $options: "i"
+        }
+    },
+        {'firstName': {$regex: data.searchQuery, $options: "i"}},
+        {'lastName': {$regex: data.searchQuery, $options: "i"}},
+        {'description': {$regex: data.searchQuery, $options: "i"}},
+        {'searchTags': {$regex: data.searchQuery, $options: "i"}}]);
 
     let results = []
 
