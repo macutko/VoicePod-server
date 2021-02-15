@@ -1,19 +1,19 @@
 ﻿const express = require('express');
 const router = express.Router();
-const userService = require('../../services/user.service');
+const userService = require('../../services/user');
 const log = require('../../utils/logging');
 // routes
 router.post('/authenticate', authenticate);
 router.post('/create', create);
 router.get('/exists', getByEmailOrUsername);
 router.get('/getCurrent', getCurrent);
-router.get('/deleteAccount', removeUser);
+router.get('/deleteAccount', deleteUser);
 router.post('/updateAccount', updateUser);
 
 module.exports = router;
 
-function removeUser(req, res, next) {
-    userService.removeUser(req.user.sub).then((r) => {
+function deleteUser(req, res, next) {
+    userService.deleteUser(req.user.sub).then((r) => {
 
         if (r) {
             res.sendStatus(200)
@@ -28,7 +28,10 @@ function removeUser(req, res, next) {
 
 function updateUser(req, res, next) {
     userService.updateUser(req).then((doc) => {
-        if (doc) {
+        if (doc.url) {
+
+            res.status(200).json(doc)
+        } else if (doc) {
             res.sendStatus(200)
         } else {
             res.sendStatus(500)
@@ -40,7 +43,7 @@ function updateUser(req, res, next) {
 }
 
 function create(req, res, next) {
-    userService.create(req.body)
+    userService.createUser(req.body)
         .then((user) => {
             if (!(user.user.username == null) || !(user.token == null)) {
                 res.status(201).json(user);
@@ -59,7 +62,7 @@ function getCurrent(req, res, next) {
     if (!req.user) {
         res.status(401).json({message: "Not logged in"})
     } else {
-        userService.getById(req.user.sub)
+        userService.getUserById(req.user.sub)
             .then(user => {
                 if (user) {
                     res.json({user: user}).status(200)
@@ -73,7 +76,7 @@ function getCurrent(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-    userService.authenticate(req.body)
+    userService.authenticateUser(req.body)
         .then(({user, token, errCode}) => {
             switch (errCode) {
                 case 401:
@@ -85,7 +88,7 @@ function authenticate(req, res, next) {
                     res.status(404).json({message: "Username not found"})
                     break;
                 default:
-                    res.json({user:user,token:token});
+                    res.json({user: user, token: token});
                     log.log("200 User logged in!")
                     break;
             }
@@ -95,11 +98,11 @@ function authenticate(req, res, next) {
 
 function getByEmailOrUsername(req, res, next) {
     if (req.query.email) {
-        userService.getByEmail(req.query.email)
+        userService.getUserByEmail(req.query.email)
             .then(user => user ? res.json({"emailError": "Email already exists"}) : res.json())
             .catch(err => next(err));
     } else if (req.query.username) {
-        userService.getByUsername(req.query.username)
+        userService.getUserByUsername(req.query.username)
             .then(user => user ? res.json({"usernameError": "Username already exists"}) : res.json())
             .catch(err => next(err));
     }
