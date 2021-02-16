@@ -20,5 +20,6 @@ module.exports = {
     Message: require('./message.model'),
     Review: require('./review.model'),
     Offer: require('./offer.model'),
+    Sound: require('./sound.model'),
     BusinessProfile: require('./businessProfile.model'),
 };

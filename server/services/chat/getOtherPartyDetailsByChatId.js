@@ -6,11 +6,11 @@ export async function getOtherPartyDetailsByChatId(data, userId) {
 
     let chat = await Chat.findById(data.chatId).or([{'customer': userId}, {'consultant': userId}]).populate({
         path: 'customer',
-        select: "username firstName lastName profilePicture pictureType businessActivated",
+        select: "username firstName lastName profilePicture pictureType ",
         match: {_id: {$ne: userId}}
     }).populate({
         path: 'consultant',
-        select: "username firstName lastName profilePicture pictureType businessActivated",
+        select: "username firstName lastName profilePicture pictureType ",
         match: {_id: {$ne: userId}}
     }).populate({
         path: 'lastMessage',
