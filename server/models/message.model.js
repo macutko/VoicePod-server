@@ -5,9 +5,9 @@ const schema = new Schema({
     chatId: {type: Schema.Types.ObjectId, ref: 'Chat', required: true, immutable: true},
     from: {type: Schema.Types.ObjectId, ref: 'User', required: true, immutable: true},
     transcript: {type: Schema.Types.String, default: ''},
-    soundBits: {type: Schema.Types.String, required: true},
+    sound: {type: Schema.Types.ObjectId, ref: 'Sound', required: true, immutable: true},
     read: {type: Schema.Types.Boolean, default: false},
-    duration: {type: Schema.Types.Number, required: true}
+    durationInSeconds: {type: Schema.Types.Number, required: true}
 }, {timestamps: true});
 
 schema.set('toJSON', {

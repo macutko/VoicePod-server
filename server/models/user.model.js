@@ -9,10 +9,8 @@ const schema = new Schema({
     createdDate: {type: Schema.Types.Date, default: Date.now},
     email: {type: Schema.Types.String, required: true},
     confirmedEmail: {type: Schema.Types.Boolean, default: false},
-    profilePicture: {type: Schema.Types.String, default: null}, // TODO: this should not be stored in the DB eventually
+    profilePicture: {type: Schema.Types.String, default: null},
     pictureType: {type: Schema.Types.String, enum: ['jpg', 'png', 'jpeg']},
-    language: {type: Schema.Types.String, default: 'en-EN'}, // TODO: this is for the future once we enable multiple languages for transcript
-    businessActivated: {type: Schema.Types.Boolean, default: false}, // for quick access to be able to tell if someone is a bussiness account TODO: check that this holds
     description: {type: Schema.Types.String, default: "Add a BIO of yourself"},
     searchTags: [{type: Schema.Types.String}],
     businessProfile: {type: Schema.Types.ObjectId, ref: 'BusinessProfile', default: null}, // for detail access on business account of user (i.e. is it done with stirpe)
