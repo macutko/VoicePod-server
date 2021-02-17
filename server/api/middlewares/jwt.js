@@ -2,10 +2,7 @@ import expressJwt from 'express-jwt'
 import {Config} from "../../config";
 import {getUserById} from "../../services/user";
 
-
-module.exports = jwt;
-
-function jwt() {
+export default function jwt() {
     let conf = new Config();
     return expressJwt({secret: conf.secret, isRevoked}).unless({
         path: [

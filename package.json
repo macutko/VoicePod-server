@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "npm-run-all clean & babel ./server --out-dir build --ignore ./node_modules",
+    "build": "npm-run-all clean && babel ./server --out-dir ./build --ignore ./node_modules",
     "start": "npm run build && NODE_ENV=production&& SECRET=hjaksdabnasd456asdkjkdsajjjja0&& node ./build/main.js",
     "clean": "rm -rf build",
     "watch:dev": "npm-run-all build && babel-node ./build/main.js"
@@ -20,9 +20,8 @@
     "@babel/core": "^7.10.4",
     "@babel/node": "^7.10.4",
     "@babel/preset-env": "^7.10.3",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "babel-loader": "^6.2.0",
-    "babel-preset-es2015": "^6.3.13",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chalk": "^4.0.0",
@@ -53,10 +52,7 @@
     ],
     "plugins": [
       [
-        "@babel/plugin-proposal-class-properties",
-        {
-          "loose": true
-        }
+        "@babel/plugin-proposal-class-properties"
       ]
     ]
   },

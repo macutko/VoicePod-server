@@ -4,7 +4,7 @@ import {User} from "../../models/db";
 export async function searchUser(data, userID) {
     if (!data.searchQuery) throw 'need a search query!'
     let finds;
-    finds = await User.find().and({"businessActivated": true}).or([{
+    finds = await User.find().or([{
         'username': {
             $regex: data.searchQuery,
             $options: "i"
