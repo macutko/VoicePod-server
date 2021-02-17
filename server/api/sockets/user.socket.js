@@ -2,7 +2,7 @@ import {wrapper} from "./_wrapper";
 import {
     contactSupport,
     getCheckDefaultPaymentMethod,
-    getDefaultPaymentMethod,
+    getDefaultPaymentMethod, searchBusinessUser,
     searchUser,
     setAddPaymentMethod,
     setDefaultPaymentMethod
@@ -14,6 +14,7 @@ export default class UserOptionsHandler {
 
         this.handler = {
             searchUser: this.searchUser,
+            searchBusinessUser: this.searchBusinessUser,
             contactSupport: this.contactSupport,
             setAddPaymentMethod: this.setAddPaymentMethod,
             getDefaultPaymentMethod: this.getDefaultPaymentMethod,
@@ -40,4 +41,8 @@ export default class UserOptionsHandler {
     searchUser = (data, ackFn) => {
         wrapper(searchUser, data, this.socket.decoded_token.sub, ackFn)
     }
+    searchBusinessUser = (data, ackFn) => {
+        wrapper(searchBusinessUser, data, this.socket.decoded_token.sub, ackFn)
+    }
 }
+
