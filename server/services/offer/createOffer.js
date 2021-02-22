@@ -1,19 +1,20 @@
 import {Config} from "../../config";
 import {Offer, User} from "../../models/db";
+import {createSound} from "../sound/_create_util";
+import {error} from "../../utils/logging";
 
 let config = new Config()
-
-
-
 
 
 /**
  * Crete a new offer and lock the payment
  * @param data
  * @param userId
- * @returns {Promise<{clientSecret: string}|boolean>}
+ * @returns {Promise<{}>}
  */
 export async function createOffer(data, userId) {
+    //TODO: return offer if there is one as such
+
     if (!data.username) throw 'Need a consultant username'
     if (!data.intro || !data.problem || !data.budget) throw 'No voice clip or budget'
     if (data.budget <= 0) throw  'invalid budget'
@@ -43,15 +44,21 @@ export async function createOffer(data, userId) {
 
     if (!paymentIntent.id) throw 'Error in transaction!'
 
-    let newOffer = new Offer({
-        introSoundBits: data.intro,
-        problemSoundBits: data.problem,
-        budgetMinutes: data.budget,
-        paymentIntentId: paymentIntent.id,
-        customer: customer.id,
-        consultant: consultant.id,
-        price: consultant.businessProfile.price
-    })
+    let newOffer;
+    try {
+        newOffer = new Offer({
+            introSoundBits: await createSound(`intro_${consultant.id}_${customer.id}.wav`, data.intro, [customer.id, consultant.id]),
+            problemSoundBits: await createSound(`problem_${consultant.id}_${customer.id}.wav`, data.intro, [customer.id, consultant.id]),
+            budgetMinutes: data.budget,
+            paymentIntentId: paymentIntent.id,
+            customer: customer.id,
+            consultant: consultant.id,
+            price: consultant.businessProfile.price
+        })
+    } catch (err) {
+        error(err)
+        return {}
+    }
 
     await newOffer.save()
 

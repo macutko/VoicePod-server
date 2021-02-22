@@ -3,12 +3,12 @@ const router = express.Router();
 const userService = require('../../services/user');
 const log = require('../../utils/logging');
 // routes
-router.post('/authenticate', authenticate);
-router.post('/create', create);
+router.post('/authenticateUser', authenticate);
+router.post('/createUser', create);
 router.get('/exists', getByEmailOrUsername);
-router.get('/getCurrent', getCurrent);
-router.get('/deleteAccount', deleteUser);
-router.post('/updateAccount', updateUser);
+router.get('/getCurrentUser', getCurrentUser);
+router.get('/deleteUser', deleteUser);
+router.post('/updateUser', updateUser);
 
 module.exports = router;
 
@@ -58,7 +58,7 @@ function create(req, res, next) {
     });
 }
 
-function getCurrent(req, res, next) {
+function getCurrentUser(req, res, next) {
     if (!req.user) {
         res.status(401).json({message: "Not logged in"})
     } else {

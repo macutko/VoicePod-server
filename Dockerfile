@@ -1,21 +1,30 @@
-FROM node:14
+FROM node:14-alpine as base
+WORKDIR /app
 
-# Create app directory
-WORKDIR /usr/src/app
+FROM base AS development
+COPY ["package.json", "package-lock.json*", "./"]
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+# first set aside prod dependencies so we can copy in to the prod image
+RUN npm ci --production
+RUN cp -R node_modules /tmp/node_modules
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-
-# Bundle app source
+RUN npm ci
 COPY . .
 
+FROM development as builder
+#RUN npm lint
+ENV NODE_ENV=development
+RUN npm run test
+RUN npm run build
+
+# release includes bare minimum required to run the app, copied from builder
+FROM base AS release
+COPY --from=builder /tmp/node_modules ./node_modules
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/package.json ./
 EXPOSE 12345
-ENV NODE_ENV=production
-ENV SECRET=hjaksdabnasd456asdkjkdsajjjja0
+# this is temporary!:
+ENV NODE_ENV=development
 CMD ["npm","start"]
+
+

@@ -7,21 +7,17 @@
     "node": "12.x"
   },
   "scripts": {
+    "test": "jest --passWithNoTests",
     "dev": "nodemon",
-    "build": "npm-run-all clean && babel ./server --out-dir ./build --ignore ./node_modules",
-    "start": "npm run build && NODE_ENV=production&& SECRET=hjaksdabnasd456asdkjkdsajjjja0&& node ./build/main.js",
+    "build": "babel ./server --out-dir ./build --ignore ./node_modules",
+    "start": "node ./build/main.js",
     "clean": "rm -rf build",
-    "watch:dev": "npm-run-all build && babel-node ./build/main.js"
+    "watch:dev": "npm-run-all clean && build && babel-node ./build/main.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/cli": "^7.10.3",
-    "@babel/core": "^7.10.4",
-    "@babel/node": "^7.10.4",
-    "@babel/preset-env": "^7.10.3",
     "axios": "^0.21.1",
-    "babel-loader": "^6.2.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chalk": "^4.0.0",
@@ -37,7 +33,6 @@
     "mongoose": "^5.9.12",
     "node-aplay": "^1.0.3",
     "nodemailer": "^6.4.17",
-    "nodemon": "^2.0.3",
     "npm-run-all": "^4.1.5",
     "python-shell": "^2.0.3",
     "rootpath": "^0.1.2",
@@ -45,10 +40,26 @@
     "socketio-jwt": "^4.5.0",
     "stripe": "^8.132.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.3",
+    "jest": "^26.6.3",
+    "@babel/cli": "^7.10.3",
+    "@babel/core": "^7.12.17",
+    "@babel/node": "^7.10.4",
+    "@babel/preset-env": "^7.12.17",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^6.2.0"
+  },
   "babel": {
     "presets": [
-      "@babel/preset-env"
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
     ],
     "plugins": [
       [

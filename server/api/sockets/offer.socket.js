@@ -2,10 +2,13 @@ import {wrapper} from "./_wrapper";
 import {
     createOffer,
     getOfferById,
-    getOffersByUserId,
+    getOtherPartyDetailsByOfferId,
+    getPendingOffersByUserId,
+    getResolvedOffersByUserId,
+    getSentOffersByUserId,
     setAcceptOffer,
     setConfirmOffer,
-    setRejectOrCancelOffer
+    setRejectOffer
 } from "../../services/offer";
 
 export class OfferHandler {
@@ -13,17 +16,29 @@ export class OfferHandler {
         this.socket = socket;
 
         this.handler = {
-            getOffersByUserId: this.getOffersByUserId,
             createOffer: this.createOffer,
             getOfferById: this.getOfferById,
+            getPendingOffersByUserId: this.getPendingOffersByUserId,
+            getSentOffersByUserId: this.getSentOffersByUserId,
+            getResolvedOffersByUserId: this.getResolvedOffersByUserId,
             setAcceptOffer: this.setAcceptOffer,
-            setRejectOrCancelOffer: this.setRejectOrCancelOffer,
+            setRejectOffer: this.setRejectOffer,
             setConfirmOffer: this.setConfirmOffer,
+            getOtherPartyDetailsByOfferId: this.getOtherPartyDetailsByOfferId
         };
     }
 
-    getOffersByUserId = (data, ackFn) => {
-        wrapper(getOffersByUserId, data, this.socket.decoded_token.sub, ackFn)
+    getOtherPartyDetailsByOfferId = (data, ackFn) => {
+        wrapper(getOtherPartyDetailsByOfferId, data, this.socket.decoded_token.sub, ackFn)
+    }
+    getPendingOffersByUserId = (data, ackFn) => {
+        wrapper(getPendingOffersByUserId, data, this.socket.decoded_token.sub, ackFn)
+    }
+    getSentOffersByUserId = (data, ackFn) => {
+        wrapper(getSentOffersByUserId, data, this.socket.decoded_token.sub, ackFn)
+    }
+    getResolvedOffersByUserId = (data, ackFn) => {
+        wrapper(getResolvedOffersByUserId, data, this.socket.decoded_token.sub, ackFn)
     }
     createOffer = (data, ackFn) => {
         wrapper(createOffer, data, this.socket.decoded_token.sub, ackFn)
@@ -34,8 +49,8 @@ export class OfferHandler {
     setAcceptOffer = (data, ackFn) => {
         wrapper(setAcceptOffer, data, this.socket.decoded_token.sub, ackFn)
     }
-    setRejectOrCancelOffer = (data, ackFn) => {
-        wrapper(setRejectOrCancelOffer, data, this.socket.decoded_token.sub, ackFn)
+    setRejectOffer = (data, ackFn) => {
+        wrapper(setRejectOffer, data, this.socket.decoded_token.sub, ackFn)
     }
     setConfirmOffer = (data, ackFn) => {
         wrapper(setConfirmOffer, data, this.socket.decoded_token.sub, ackFn)
