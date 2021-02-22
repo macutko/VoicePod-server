@@ -29,11 +29,10 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-
 # since docker build also needs to do test, no point in wasting time doing it separetely
 build:
   stage: build
-  only: [ merge_requests ]
+  only: [merge_requests]
   except:
     - master
   script:
@@ -53,7 +52,8 @@ deploy:
     - mkdir -p ~/.ssh/
     - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
     - ssh -i runner_key runner@192.168.0.214 docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-    - ssh -i runner_key runner@192.168.0.214 docker stop voicepod_server
-    - ssh -i runner_key runner@192.168.0.214 docker rm voicepod_server && docker images prune --all --force
+    - ssh -i runner_key runner@192.168.0.214 docker stop voicepod_server &>/dev/null
+    - ssh -i runner_key runner@192.168.0.214 docker rm voicepod_server &>/dev/null
+    - ssh -i runner_key runner@192.168.0.214 docker images prune --all --force
     - ssh -i runner_key runner@192.168.0.214 docker run --name voicepod_server -d -p 12345:12345 voicepod/server
     - ssh -i runner_key runner@192.168.0.214 docker container rm $(docker ps --filter "status=exited" -q) && docker rmi $(docker images -f "dangling=true" -q)

@@ -1,10 +1,3 @@
-import {Chat, Message, User} from '../../models/db'
-import * as fs from "fs";
-import getAudioDurationInSeconds from "get-audio-duration";
-import {error} from "../../utils/logging";
-
-
-
 /**
  * Not active yet. However fully functional.
  */
@@ -36,5 +29,3 @@ import {error} from "../../utils/logging";
 //
 //     return [success, message.transcript]
 // }
-
-

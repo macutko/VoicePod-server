@@ -2,7 +2,7 @@ const db = require('../models/db');
 const Error = db.Error;
 
 module.exports = {
-    create
+    create,
 };
 
 async function create(errorParams) {

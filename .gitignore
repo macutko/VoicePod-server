@@ -394,4 +394,4 @@ DerivedData/
 ### Gradle Patch ###
 **/build/
 
-# End of https://www.gitignore.io/api/react,gradle,android,reactnative
+# End of https://www.gitignore.io/api/react,gradle,android,reactnativenode_modules/

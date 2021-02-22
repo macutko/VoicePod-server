@@ -1,14 +1,14 @@
-import {Config} from "../config";
-import mongoose from 'mongoose'
+import { Config } from '../config';
+import mongoose from 'mongoose';
 
 const connectionOptions = {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useFindAndModify: false,
 };
 
-let conf = new Config()
+let conf = new Config();
 
 mongoose.connect(conf.connectionString, connectionOptions);
 mongoose.Promise = global.Promise;

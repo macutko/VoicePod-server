@@ -1,17 +1,17 @@
-import expressJwt from 'express-jwt'
-import {Config} from "../../config";
-import {getUserById} from "../../services/user";
+import expressJwt from 'express-jwt';
+import { Config } from '../../config';
+import { getUserById } from '../../services/user';
 
 export default function jwt() {
     let conf = new Config();
-    return expressJwt({secret: conf.secret, isRevoked}).unless({
+    return expressJwt({ secret: conf.secret, isRevoked }).unless({
         path: [
             // public routes that don't require authentication
             '/user/authenticateUser',
             '/user/createUser',
             '/user/exists',
             '/client-error/',
-        ]
+        ],
     });
 }
 

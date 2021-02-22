@@ -1,33 +1,33 @@
-import {User} from "../../models/db";
-
+import { User } from '../../models/db';
 
 export async function searchUser(data, userID) {
-    if (!data.searchQuery) throw 'need a search query!'
+    if (!data.searchQuery) throw 'need a search query!';
     let finds;
-    finds = await User.find().or([{
-        'username': {
-            $regex: data.searchQuery,
-            $options: "i"
-        }
-    },
-        {'firstName': {$regex: data.searchQuery, $options: "i"}},
-        {'lastName': {$regex: data.searchQuery, $options: "i"}},
-        {'description': {$regex: data.searchQuery, $options: "i"}},
-        {'searchTags': {$regex: data.searchQuery, $options: "i"}}]);
+    finds = await User.find().or([
+        {
+            username: {
+                $regex: data.searchQuery,
+                $options: 'i',
+            },
+        },
+        { firstName: { $regex: data.searchQuery, $options: 'i' } },
+        { lastName: { $regex: data.searchQuery, $options: 'i' } },
+        { description: { $regex: data.searchQuery, $options: 'i' } },
+        { searchTags: { $regex: data.searchQuery, $options: 'i' } },
+    ]);
 
-    let results = []
+    let results = [];
 
     if (finds.length !== 0) {
         for (const user in finds) {
-            let u = finds[user]
+            let u = finds[user];
             if (u.id !== userID) {
-                u = u.toJSON()
-                delete u.businessActivated
-                delete u.id
-                results.push(u)
+                u = u.toJSON();
+                delete u.businessActivated;
+                delete u.id;
+                results.push(u);
             }
         }
     }
-    return results
-
+    return results;
 }

@@ -1,5 +1,5 @@
-import axios from "axios";
-import {Config} from "../config";
+import axios from 'axios';
+import { Config } from '../config';
 
 let conf = new Config();
 const axiosInstance = axios.create({
@@ -8,4 +8,4 @@ const axiosInstance = axios.create({
 
 axiosInstance.defaults.timeout = 1000;
 
-module.exports = {axiosInstance};
+module.exports = { axiosInstance };

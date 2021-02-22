@@ -1,5 +1,5 @@
-import {stripeCountryCodes} from "../../utils/stripeCountryCode";
+import { stripeCountryCodes } from '../../utils/stripeCountryCode';
 
 export async function getCountries() {
-    return stripeCountryCodes
+    return stripeCountryCodes;
 }

@@ -1,0 +1,23 @@
+{
+  "extends": "strongloop",
+  "parser": "babel-eslint",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "no-else-return": "error",
+    "no-multi-spaces": "error",
+    "no-throw-literal": "off",
+    "max-len": ["error", { "code": 120 }],
+    "no-whitespace-before-property": "error",
+    "camelcase": "error",
+    "new-cap": "error",
+    "no-console": "off",
+    "comma-dangle": "error",
+    "no-var": "error",
+    "indent": [1, 4, { "SwitchCase": 1 }],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"]
+  }
+}
