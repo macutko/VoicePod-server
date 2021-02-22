@@ -20,6 +20,7 @@ import MessageHandler from "./api/sockets/message.socket";
 import {OfferHandler} from "./api/sockets/offer.socket";
 import ReviewHandler from "./api/sockets/review.socket";
 import BusinessProfileHandler from "./api/sockets/businessProfile.socket";
+import SoundHandler from "./api/sockets/sound.socket";
 
 let conf = new Config()
 
@@ -58,7 +59,8 @@ io.on('connection', authorize({
         message: new MessageHandler(socket, io),
         business: new BusinessProfileHandler(socket, io),
         offer: new OfferHandler(socket, io),
-        review: new ReviewHandler(socket, io)
+        review: new ReviewHandler(socket, io),
+        sound: new SoundHandler(socket, io)
     };
 
     // Bind events to handlers

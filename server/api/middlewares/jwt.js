@@ -7,8 +7,8 @@ export default function jwt() {
     return expressJwt({secret: conf.secret, isRevoked}).unless({
         path: [
             // public routes that don't require authentication
-            '/user/authenticate',
-            '/user/create',
+            '/user/authenticateUser',
+            '/user/createUser',
             '/user/exists',
             '/client-error/',
         ]

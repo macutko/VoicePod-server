@@ -11,7 +11,7 @@ export async function getOfferById(data, userId) {
         introSoundBits: 1,
         problemSoundBits: 1,
         budgetMinutes: 1,
-        accepted: 1,
+        status: 1,
         dateOfDecision: 1,
         createdDate: 1,
         price: 1

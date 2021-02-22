@@ -4,7 +4,7 @@ import {Offer} from "../../models/db";
 let config = new Config()
 
 
-export async function setRejectOrCancelOffer(data, userId) {
+export async function setRejectOffer(data, userId) {
     if (!data.offerId) throw 'Need offer id'
 
     let offer = await Offer.findById(data.offerId)
@@ -14,5 +14,7 @@ export async function setRejectOrCancelOffer(data, userId) {
         offer.paymentIntentId
     );
 
-    return Offer.findByIdAndDelete(data.offerId)
+    offer.status = "rejected"
+
+    return offer.save()
 }

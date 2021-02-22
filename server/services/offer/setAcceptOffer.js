@@ -14,7 +14,7 @@ export async function setAcceptOffer(data, userId) {
         offer.paymentIntentId
     );
 
-    offer.accepted = true
+    offer.status = "accepted"
 
     if (paymentIntent.status === 'requires_capture') {
         // If 3D has passed, just capture the payments
