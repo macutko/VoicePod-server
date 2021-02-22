@@ -4,7 +4,6 @@
 ###########
 # Var def:
 # RUNNER_PRIVATE_KEY: private key to ssh into runner@Verser
-# SSH_PRIVATE_KEY: pk to pull ci scripts
 # DOCKER_PASS: password to docker hub
 # DOCKER_USER: user to docker hub
 ###########
@@ -29,41 +28,14 @@ variables:
   DOCKER_HOST: tcp://thedockerhost:2375/
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
-#  SCRIPTS_REPO: git@gitlab.com:conzlt/ci_scripts.git
-
-before_script:
-  - echo "BUILDER!:"
-  - ls -al
-  - pwd
-#  - export SCRIPTS_DIR=$(mktemp -d)
-#  - ssh-agent $(ssh-add < echo "$SSH_PRIVATE_KEY"; git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR")
-
-stages:
-  #  - version
-  - build
-  - deploy
-
-#version:
-#  image: python:3.7-stretch
-#  stage: version
-#  script:
-#    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-#    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
-#    - eval $(ssh-agent -s)
-#    - ssh-add <(echo "$SSH_PRIVATE_KEY")
-#    - pip install semver
-#    - $SCRIPTS_DIR/common/gen-semver > version
-#  artifacts:
-#    paths:
-#      - version
-#  only:
-#    - master
 
 
 # since docker build also needs to do test, no point in wasting time doing it separetely
 build:
   stage: build
   only: [ merge_requests ]
+  except:
+    - master
   script:
     - echo "Running build"
     - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
@@ -77,11 +49,11 @@ deploy:
     - master
   script:
     - echo "Running deploy"
-    - echo "$RUNNER_PRIVATE_KEY" >> runner_key && chmod 600 runner_key
+    - echo "$RUNNER_PRIVATE_KEY" > runner_key && chmod 600 runner_key
     - mkdir -p ~/.ssh/
     - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
     - ssh -i runner_key runner@192.168.0.214 docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
     - ssh -i runner_key runner@192.168.0.214 docker stop voicepod_server
-    - ssh -i runner_key runner@192.168.0.214 docker rm voicepod_server && docker images prune -f
+    - ssh -i runner_key runner@192.168.0.214 docker rm voicepod_server && docker images prune --all --force
     - ssh -i runner_key runner@192.168.0.214 docker run --name voicepod_server -d -p 12345:12345 voicepod/server
     - ssh -i runner_key runner@192.168.0.214 docker container rm $(docker ps --filter "status=exited" -q) && docker rmi $(docker images -f "dangling=true" -q)
