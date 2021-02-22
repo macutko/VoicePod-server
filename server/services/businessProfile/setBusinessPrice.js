@@ -1,12 +1,13 @@
-import {__getUserAndProfileById} from "./_util";
+import { __getUserAndProfileById } from './_util';
 
 export async function setBusinessPrice(data, userId) {
-    if (!data.price) throw 'need price'
-    if (data.price <= 0 || isNaN(data.price)) throw 'Bad price format'
+    if (!data.price) throw 'need price';
+    if (data.price <= 0 || isNaN(data.price)) throw 'Bad price format';
 
-    let [user, profile] = await __getUserAndProfileById(userId)
+    // eslint-disable-next-line no-unused-vars
+    let [user, profile] = await __getUserAndProfileById(userId);
 
-    profile.price = data.price
-    await profile.save()
-    return true
+    profile.price = data.price;
+    await profile.save();
+    return true;
 }

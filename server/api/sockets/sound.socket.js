@@ -1,5 +1,5 @@
-import {wrapper} from "./_wrapper";
-import {getSoundById} from "../../services/sound";
+import { wrapper } from './_wrapper';
+import { getSoundById } from '../../services/sound';
 
 export default class SoundHandler {
     constructor(socket, io) {
@@ -10,8 +10,7 @@ export default class SoundHandler {
         };
     }
 
-    getSoundById = (data, ackFn) => {
-        wrapper(getSoundById, data, this.socket.decoded_token.sub, ackFn)
-    }
-
+  getSoundById = (data, ackFn) => {
+      wrapper(getSoundById, data, this.socket.decoded_token.sub, ackFn);
+  };
 }

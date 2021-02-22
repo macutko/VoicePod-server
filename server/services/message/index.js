@@ -1,3 +1,3 @@
-export {sendNewMessageAndCreateChat} from './sendNewMessageAndCreateChat'
-export {createMessage} from './createMessage'
-export {getMessages} from './getMessages'
+export { sendNewMessageAndCreateChat } from './sendNewMessageAndCreateChat';
+export { createMessage } from './createMessage';
+export { getMessages } from './getMessages';

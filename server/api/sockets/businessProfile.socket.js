@@ -4,9 +4,9 @@ import {
     getBusinessProfile,
     getCountries,
     setBusinessCountry,
-    setBusinessPrice
-} from "../../services/businessProfile";
-import {wrapper} from "./_wrapper";
+    setBusinessPrice,
+} from '../../services/businessProfile';
+import { wrapper } from './_wrapper';
 
 export default class BusinessProfileHandler {
     constructor(socket, io) {
@@ -22,22 +22,22 @@ export default class BusinessProfileHandler {
         };
     }
 
-    getBusinessProfile = (data, ackFn) => {
-        wrapper(getBusinessProfile, data, this.socket.decoded_token.sub, ackFn)
-    }
-    getPrice = (data, ackFn) => {
-        wrapper(getBusinessPrice, data, this.socket.decoded_token.sub, ackFn)
-    }
-    setPrice = (data, ackFn) => {
-        wrapper(setBusinessPrice, data, this.socket.decoded_token.sub, ackFn)
-    }
-    getCountries = (data, ackFn) => {
-        wrapper(getCountries, data, this.socket.decoded_token.sub, ackFn)
-    }
-    getCountry = (data, ackFn) => {
-        wrapper(getBusinessCountry, data, this.socket.decoded_token.sub, ackFn)
-    }
-    setCountry = (data, ackFn) => {
-        wrapper(setBusinessCountry(), data, this.socket.decoded_token.sub, ackFn)
-    }
+  getBusinessProfile = (data, ackFn) => {
+      wrapper(getBusinessProfile, data, this.socket.decoded_token.sub, ackFn);
+  };
+  getPrice = (data, ackFn) => {
+      wrapper(getBusinessPrice, data, this.socket.decoded_token.sub, ackFn);
+  };
+  setPrice = (data, ackFn) => {
+      wrapper(setBusinessPrice, data, this.socket.decoded_token.sub, ackFn);
+  };
+  getCountries = (data, ackFn) => {
+      wrapper(getCountries, data, this.socket.decoded_token.sub, ackFn);
+  };
+  getCountry = (data, ackFn) => {
+      wrapper(getBusinessCountry, data, this.socket.decoded_token.sub, ackFn);
+  };
+  setCountry = (data, ackFn) => {
+      wrapper(setBusinessCountry(), data, this.socket.decoded_token.sub, ackFn);
+  };
 }

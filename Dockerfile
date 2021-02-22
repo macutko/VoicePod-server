@@ -14,6 +14,7 @@ COPY . .
 FROM development as builder
 #RUN npm lint
 ENV NODE_ENV=development
+RUN npm run lint
 RUN npm run test
 RUN npm run build
 

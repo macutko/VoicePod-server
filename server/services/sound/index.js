@@ -1,1 +1,1 @@
-export {getSoundById} from './getSoundById'
+export { getSoundById } from './getSoundById';
