@@ -28,8 +28,10 @@ variables:
   DOCKER_HOST: tcp://thedockerhost:2375/
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
-# since docker build also needs to do test, no point in wasting time doing it separetely
+# since docker build also needs to do test, no point in wasting time doing it separately
 build:
   stage: build
   only: [merge_requests]
@@ -37,9 +39,10 @@ build:
     - master
   script:
     - echo "Running build"
-    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-    - docker build -t voicepod/server --target release .
-    - docker push voicepod/server
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --pull -t $CONTAINER_TEST_IMAGE --target release .
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
 
 deploy:
   stage: deploy
@@ -51,10 +54,9 @@ deploy:
     - echo "$RUNNER_PRIVATE_KEY" > runner_key && chmod 600 runner_key
     - mkdir -p ~/.ssh/
     - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
-    - ssh -i runner_key runner@192.168.0.214 docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+    - ssh -i runner_key runner@192.168.0.214 docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - ssh -i runner_key runner@192.168.0.214 [ ! "$(docker ps -a | grep voicepod_server)" ] && docker stop voicepod_server
-
     - ssh -i runner_key runner@192.168.0.214 [ ! "$(docker ps -a | grep voicepod_server)" ] && docker rm voicepod_server
-    - ssh -i runner_key runner@192.168.0.214 docker images prune --all --force
-    - ssh -i runner_key runner@192.168.0.214 docker run --name voicepod_server -d -p 12345:12345 voicepod/server
     - ssh -i runner_key runner@192.168.0.214 docker container rm $(docker ps --filter "status=exited" -q) && docker rmi $(docker images -f "dangling=true" -q)
+    - ssh -i runner_key runner@192.168.0.214 docker pull $CONTAINER_TEST_IMAGE
+    - ssh -i runner_key runner@192.168.0.214 docker run --name voicepod_server -d -p 12345:12345 $CONTAINER_TEST_IMAGE
