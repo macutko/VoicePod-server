@@ -55,8 +55,8 @@ deploy:
     - mkdir -p ~/.ssh/
     - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
     - ssh -i runner_key runner@192.168.0.214 docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - ssh -i runner_key runner@192.168.0.214 [ ! "$(docker ps -a | grep voicepod_server)" ] && docker stop voicepod_server
-    - ssh -i runner_key runner@192.168.0.214 [ ! "$(docker ps -a | grep voicepod_server)" ] && docker rm voicepod_server
+    - ssh -i runner_key runner@192.168.0.214 [ "$(docker ps -a | grep voicepod_server)" ] && docker stop voicepod_server
+    - ssh -i runner_key runner@192.168.0.214 [ "$(docker ps -a | grep voicepod_server)" ] && docker rm voicepod_server
     - ssh -i runner_key runner@192.168.0.214 docker container rm $(docker ps --filter "status=exited" -q) && docker rmi $(docker images -f "dangling=true" -q)
     - ssh -i runner_key runner@192.168.0.214 docker pull $CONTAINER_TEST_IMAGE
     - ssh -i runner_key runner@192.168.0.214 docker run --name voicepod_server -d -p 12345:12345 $CONTAINER_TEST_IMAGE
